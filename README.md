@@ -56,6 +56,11 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 
 ---
 
+## Дизайн-система
+[Figma: GeTaTaPi Design System](https://www.figma.com/design/i6iI66gVIJOcHyom3WmIaT/GeTaTaPi-project?node-id=1-2&t=r8i59jrHADIVJSsj-1)
+
+---
+
 ## Статус проекта
 
 Этап 1 — идея и техническое задание.
@@ -64,5 +69,9 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 - [x] Техническое задание: `docs/02-tz.docx`, use-case и activity диаграммы
 - [x] Стек и паттерн: `docs/03-stack.docx`
 - [x] Тег `v0.1-spec`
+- [x] Проектирование архитектуры: `docs/04-architecture.docx`
+- [x] Дизайн-система: `docs/05-design-system.docx`
+
+- [ ] Потом допишу
 
 ---
