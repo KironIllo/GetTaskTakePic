@@ -58,6 +58,7 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 
 ## Дизайн-система
 [Figma: GeTaTaPi Design System](https://www.figma.com/design/i6iI66gVIJOcHyom3WmIaT/GeTaTaPi-project?node-id=1-2&t=r8i59jrHADIVJSsj-1)
+[Figma: GeTaTaPi Prototype](https://www.figma.com/proto/i6iI66gVIJOcHyom3WmIaT/GeTaTaPi-project?node-id=21-122&p=f&t=MdFIebiykwzwqmeY-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=21%3A122)
 
 ---
 
@@ -71,6 +72,8 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 - [x] Тег `v0.1-spec`
 - [x] Проектирование архитектуры: `docs/04-architecture.docx`
 - [x] Дизайн-система: `docs/05-design-system.docx`
+- [x] Макеты экранов
+- [x] Прототип и карта навигации
 
 - [ ] Потом допишу
 
