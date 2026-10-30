@@ -34,6 +34,10 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 | [`docs/02-tz.docx`](docs/02-tz.docx) | Техническое задание: цели, функциональные и нефункциональные требования, user stories, use-case диаграмма, обработка ошибок и офлайн, MoSCoW |
 | [`docs/03-stack.docx`](docs/03-stack.docx) | Стек и архитектура: Clean Architecture + MVVM, обоснование инструментов, требования к серверу и приложению, сравнение вариантов серверной части, риски |
 | [`docs/UseCase.drawio`](docs/UseCase.drawio) | Use-case диаграмма |
+| [`docs/UseCase.drawio`](docs/UseCase.drawio) | Use-case диаграмма |
+| [`docs/04-architecture.docx`](docs/04-architecture.docx) | Архитектура: слои, сущности и тд. |
+| [`docs/05-design-system.docx`](docs/05-design-system.docx) | Дизайн приложения |
+| [`docs/design`](docs/design/) | Дизайн приложения: Экраны, карта навигации |
 
 ---
 
@@ -57,8 +61,8 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 ---
 
 ## Дизайн-система
-[Figma: GeTaTaPi Design System](https://www.figma.com/design/i6iI66gVIJOcHyom3WmIaT/GeTaTaPi-project?node-id=1-2&t=r8i59jrHADIVJSsj-1)
-[Figma: GeTaTaPi Prototype](https://www.figma.com/proto/i6iI66gVIJOcHyom3WmIaT/GeTaTaPi-project?node-id=21-122&p=f&t=MdFIebiykwzwqmeY-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=21%3A122)
+[Figma: GeTaTaPi Design System](https://www.figma.com/design/i6iI66gVIJOcHyom3WmIaT/GeTaTaPi-project)
+[Figma: GeTaTaPi Prototype](https://www.figma.com/proto/i6iI66gVIJOcHyom3WmIaT/GeTaTaPi-project)
 
 ---
 
