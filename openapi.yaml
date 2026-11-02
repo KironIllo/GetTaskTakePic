@@ -1,0 +1,34 @@
+openapi: 3.1.0
+info:
+  title: GetTaskTakePic API
+  version: 1.0.0
+  description: REST API GeTaTaPi. JWT Supabase Auth required. Timestamps are UTC ISO 8601.
+servers:
+  - url: https://{project-ref}.supabase.co/functions/v1/api-v1
+    variables:
+      project-ref:
+        default: your-project-ref
+security:
+  - BearerAuth: []
+paths:
+  /topics:
+    get:
+      summary: Получить активные темы
+      operationId: listTopics
+      tags: [Topics]
+      responses:
+        '200':
+          description: Список тем
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: {$ref: '#/components/schemas/Topic'}
+              example:
+                data:
+                  - {id: "7b8d0000-0000-4000-8000-000000000001", code: nature, title: Природа, description: Объекты природы, sortOrder: 1}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  

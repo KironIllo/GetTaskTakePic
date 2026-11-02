@@ -34,7 +34,6 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 | [`docs/02-tz.docx`](docs/02-tz.docx) | Техническое задание: цели, функциональные и нефункциональные требования, user stories, use-case диаграмма, обработка ошибок и офлайн, MoSCoW |
 | [`docs/03-stack.docx`](docs/03-stack.docx) | Стек и архитектура: Clean Architecture + MVVM, обоснование инструментов, требования к серверу и приложению, сравнение вариантов серверной части, риски |
 | [`docs/UseCase.drawio`](docs/UseCase.drawio) | Use-case диаграмма |
-| [`docs/UseCase.drawio`](docs/UseCase.drawio) | Use-case диаграмма |
 | [`docs/04-architecture.docx`](docs/04-architecture.docx) | Архитектура: слои, сущности и тд. |
 | [`docs/05-design-system.docx`](docs/05-design-system.docx) | Дизайн приложения |
 | [`docs/design`](docs/design/) | Дизайн приложения: Экраны, карта навигации |
