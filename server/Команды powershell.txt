@@ -1,0 +1,35 @@
+$SUPABASE_URL = "url here"
+$ANON_KEY = "publish key"
+
+$body = @{
+	email = "test@example.com"
+	password = "TestPassword11231"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+	-Uri "$SUPABASE_URL/auth/v1/signup" `
+	-Method Post `
+	-Headers @{ "apikey" = $ANON_KEY } `
+	-ContentType "application/json" `
+	-Body $body
+
+$result = Invoke-RestMethod `
+	-Uri "$SUPABASE_URL/auth/v1/token?grant_type=password" `
+	-Method Post `
+	-Headers @{ "apikey" = $ANON_KEY } `
+	-ContentType "application/json" `
+	-Body $body
+
+$TOKEN = $result.access_token
+
+$response = Invoke-WebRequest `                                                                 
+ -Uri "$SUPABASE_URL/functions/v1/api-v1/topics" `
+ -Headers @{ 
+ "Authorization" = "Bearer $TOKEN"
+ "apikey" = $ANON_KEY
+ } `
+$stream = $response.RawContentStream
+$stream.Position = 0
+$reader = [System.IO.StreamReader]::new($stream, [System.Text.Encoding]::UTF8)
+$text = $reader.ReadToEnd()
+$text
