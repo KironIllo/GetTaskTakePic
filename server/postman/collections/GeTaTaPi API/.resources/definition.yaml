@@ -1,0 +1,14 @@
+$kind: collection
+description: |
+  REST API for the GeTaTaPi Android application.
+  Authentication is performed using Supabase Auth JWT.
+  All timestamps are returned in ISO 8601 UTC format.
+variables:
+  project-ref: your-project-ref
+  baseUrl: https://{{project-ref}}.supabase.co/functions/v1/api-v1
+auth:
+  - id: cdd4ec31-2aa8-4ac3-8f54-34be802908ed
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{bearerToken}}"

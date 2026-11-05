@@ -1,0 +1,8 @@
+name: GeTaTaPi Local
+values:
+  - key: baseUrl
+    value: ''
+  - key: anonKey
+    value: ''
+  - key: accessToken
+    value: ''

@@ -1,0 +1,53 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/submissions?limit=20&cursor=string"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  queryParams:
+    - key: limit
+      value: "20"
+    - key: cursor
+      value: string
+      description: Cursor returned in the previous page response.
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "data": [
+          {
+            "id": "b46c5bd8-f7d0-b7bc-4268-7c3f6627d26f",
+            "taskId": "a75f5176-fd66-83b2-08b2-769ed235fb25",
+            "status": "queued",
+            "passed": true,
+            "feedback": "string",
+            "confidence": 0.4980108909794664,
+            "createdAt": "1997-06-02T20:08:52.989Z",
+            "checkedAt": "2000-03-10T00:43:09.142Z"
+          },
+          {
+            "id": "eb8a822f-fb9e-01d7-02f7-158966e6b9d0",
+            "taskId": "5f4d71a0-a094-5491-0060-9cba363a9a94",
+            "status": "processing",
+            "passed": false,
+            "feedback": "string",
+            "confidence": 0.861930808265317,
+            "createdAt": "2024-04-09T15:24:37.894Z",
+            "checkedAt": "1994-01-10T10:23:26.099Z"
+          }
+        ],
+        "page": {
+          "limit": 143,
+          "nextCursor": "string"
+        }
+      }
+order: 1000

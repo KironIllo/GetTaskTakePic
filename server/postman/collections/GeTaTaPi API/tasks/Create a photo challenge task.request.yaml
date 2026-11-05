@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/tasks"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "topicId": "b79103db-3c73-8601-ff25-44a58b3a1ca0",
+      "difficulty": "medium"
+    }
+settings: {}
+examples: ./.resources/Create a photo challenge task.resources/examples
+order: 2000

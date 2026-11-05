@@ -1,0 +1,43 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/statistics"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "completedCount": 6679,
+        "passedCount": 9551,
+        "currentStreak": 4064,
+        "bestStreak": 6975,
+        "lastActivityDate": "1947-07-17",
+        "byDifficulty": {
+          "easy": 6534,
+          "medium": 8315,
+          "hard": 593
+        },
+        "byTopic": [
+          {
+            "topicId": "0f8bad29-0ed6-bc38-fc12-c0af1a00f22d",
+            "title": "string",
+            "completedCount": 4351
+          },
+          {
+            "topicId": "921a1755-4e13-394a-20b5-7bd3c8e7ef3c",
+            "title": "string",
+            "completedCount": 5771
+          }
+        ]
+      }
+order: 1000

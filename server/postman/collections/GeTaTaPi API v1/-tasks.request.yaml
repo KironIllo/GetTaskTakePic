@@ -1,0 +1,16 @@
+$kind: http-request
+name: /tasks
+url: "{{baseUrl}}/tasks"
+method: POST
+headers:
+  apikey: "{{anonKey}}"
+  Authorization: Bearer {{accessToken}}
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "topicId": "{{topicId}}",
+      "difficulty": "easy"
+    }
+order: 2000

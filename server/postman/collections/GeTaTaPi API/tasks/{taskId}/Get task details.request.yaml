@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{baseUrl}}/tasks/:taskId"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  taskId: 853e0165-d543-8cc3-d328-66793783de47
+settings: {}
+examples: ./.resources/Get task details.resources/examples
+order: 1000

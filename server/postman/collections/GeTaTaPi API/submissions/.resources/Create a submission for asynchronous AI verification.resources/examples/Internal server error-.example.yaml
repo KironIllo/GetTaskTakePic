@@ -1,0 +1,49 @@
+$kind: http-example
+name: Internal server error.
+request:
+  url: "{{baseUrl}}/submissions"
+  method: POST
+  headers:
+    - key: Idempotency-Key
+      value: string
+      description: Unique key used to prevent duplicate submissions on retries.
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  body:
+    type: json
+    content: |-
+      {
+        "taskId": "9f702be7-b33a-00ea-ab8e-a3dd25fac8b6",
+        "storagePath": "2f1c.../8a4d.../original.jpg"
+      }
+response:
+  statusCode: 500
+  statusText: Internal Server Error
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": {
+          "code": "string",
+          "message": "string",
+          "details": [
+            {
+              "field": "string",
+              "reason": "string"
+            },
+            {
+              "field": "string",
+              "reason": "string"
+            }
+          ],
+          "requestId": "9bf53d66-7137-bfd0-aa9f-77bdc63e6ada"
+        }
+      }
+order: 11000

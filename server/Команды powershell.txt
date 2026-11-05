@@ -1,5 +1,5 @@
-$SUPABASE_URL = "url here"
-$ANON_KEY = "publish key"
+$SUPABASE_URL = "url"
+$ANON_KEY = "key"
 
 $body = @{
 	email = "test@example.com"
@@ -13,6 +13,8 @@ Invoke-RestMethod `
 	-ContentType "application/json" `
 	-Body $body
 
+
+
 $result = Invoke-RestMethod `
 	-Uri "$SUPABASE_URL/auth/v1/token?grant_type=password" `
 	-Method Post `
@@ -22,12 +24,15 @@ $result = Invoke-RestMethod `
 
 $TOKEN = $result.access_token
 
-$response = Invoke-WebRequest `                                                                 
+
+
+$response = Invoke-WebRequest `
  -Uri "$SUPABASE_URL/functions/v1/api-v1/topics" `
  -Headers @{ 
  "Authorization" = "Bearer $TOKEN"
  "apikey" = $ANON_KEY
- } `
+ } 
+
 $stream = $response.RawContentStream
 $stream.Position = 0
 $reader = [System.IO.StreamReader]::new($stream, [System.Text.Encoding]::UTF8)

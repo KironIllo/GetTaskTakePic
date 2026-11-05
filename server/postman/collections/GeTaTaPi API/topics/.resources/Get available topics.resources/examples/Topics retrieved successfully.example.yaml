@@ -1,0 +1,39 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/topics"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "data": [
+          {
+            "id": "763855c6-08bd-34e5-6f94-af3657054cf0",
+            "code": "string",
+            "title": "string",
+            "isActive": false,
+            "sortOrder": 5235,
+            "description": "string"
+          },
+          {
+            "id": "c0ab53bf-c461-d595-891c-e8b8daace368",
+            "code": "string",
+            "title": "string",
+            "isActive": true,
+            "sortOrder": 3312,
+            "description": "string"
+          }
+        ]
+      }
+order: 1000

@@ -1,0 +1,10 @@
+$kind: collection
+description: Local Supabase Edge Function requests. Set variables before use. Do not share exported access tokens.
+variables:
+  baseUrl: http://127.0.0.1:54321/functions/v1/api-v1
+  anonKey: replace-with-local-anon-key
+  accessToken: paste-user-access-token-here
+  topicId: replace-with-topic-uuid
+  taskId: replace-with-task-uuid
+  storagePath: replace-with-user-id/folder-uuid/original.jpg
+  idempotencyKey: postman-test-001

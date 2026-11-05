@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: ""
+
+localResources:
+  specs:
+    - ../openapi.yaml
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/GeTaTaPi API: 529761d0-7a6a-499b-8a97-b01fe4f6b9e4

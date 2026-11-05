@@ -1,0 +1,31 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/submissions/:submissionId"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  pathVariables:
+    submissionId: 853e0165-d543-8cc3-d328-66793783de47
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "62501b67-0469-4158-05e0-d889d5598f29",
+        "taskId": "e7127c8a-9972-d8d9-57d8-e27171166925",
+        "status": "queued",
+        "passed": true,
+        "feedback": "string",
+        "confidence": 0.3020127074791519,
+        "createdAt": "1960-01-20T06:56:22.332Z",
+        "checkedAt": "2013-03-11T19:13:59.076Z"
+      }
+order: 1000

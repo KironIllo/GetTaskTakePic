@@ -1,0 +1,8 @@
+$kind: http-request
+name: /submissions?limit=20
+url: "{{baseUrl}}/submissions?limit=20"
+method: GET
+headers:
+  apikey: "{{anonKey}}"
+  Authorization: Bearer {{accessToken}}
+order: 5000

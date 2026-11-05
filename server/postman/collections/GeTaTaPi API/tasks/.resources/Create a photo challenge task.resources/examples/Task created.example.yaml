@@ -1,0 +1,37 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/tasks"
+  method: POST
+  headers:
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  body:
+    type: json
+    content: |-
+      {
+        "topicId": "b79103db-3c73-8601-ff25-44a58b3a1ca0",
+        "difficulty": "medium"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "91371324-da27-fa47-c1aa-771fe6cfccbb",
+        "topicId": "32812b62-3082-252b-2dd3-a86f3a9d150a",
+        "difficulty": "hard",
+        "prompt": "string",
+        "status": "active",
+        "createdAt": "1946-12-14T03:11:00.799Z",
+        "expiresAt": "1961-06-12T06:25:25.028Z"
+      }
+order: 1000

@@ -1,0 +1,37 @@
+$kind: http-example
+name: Missing or invalid authentication token.
+request:
+  url: "{{baseUrl}}/statistics"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+response:
+  statusCode: 401
+  statusText: Unauthorized
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "error": {
+          "code": "string",
+          "message": "string",
+          "details": [
+            {
+              "field": "string",
+              "reason": "string"
+            },
+            {
+              "field": "string",
+              "reason": "string"
+            }
+          ],
+          "requestId": "9bf53d66-7137-bfd0-aa9f-77bdc63e6ada"
+        }
+      }
+order: 2000

@@ -17,7 +17,8 @@ function json(data: unknown, status = 200, headers: HeadersInit = {}) {
 }
 
 function fail(status: number, code: string, message: string, details: ApiError["details"] = []) {
-  return json({ error: { code, message, details, requestId: crypto.randomUUID() } }, status);
+  return json({ error: { code, message, details, requestId: crypto.randomUUID() } }, status,
+    status === 429 ? { "Retry-After": "60" } : {});
 }
 
 function getId(path: string, prefix: string): string | null {
@@ -26,7 +27,16 @@ function getId(path: string, prefix: string): string | null {
 }
 
 async function bodyJson(req: Request) {
-  try { return await req.json(); } catch { return null; }
+  const contentType = req.headers.get("Content-Type") ?? "";
+  if (!contentType.toLowerCase().includes("application/json")) return { __invalidContentType: true };
+  const raw = await req.text();
+  if (raw.length > 16_384) return { __tooLarge: true };
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function validStoragePath(value: unknown, userId: string): value is string {
+  return typeof value === "string" &&
+    new RegExp(`^${userId}/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/original\\.(jpg|jpeg|png|webp)$`, "i").test(value);
 }
 
 function validUuid(value: unknown): value is string {
@@ -54,6 +64,15 @@ Deno.serve(async (req: Request) => {
   const user: User | null = authData?.user ?? null;
   if (authError || !user) return fail(401, "UNAUTHORIZED", "Invalid or expired access token.");
 
+  const { data: withinLimit, error: rateLimitError } = await supabase.rpc("consume_api_rate_limit", {
+    p_user_id: user.id, p_limit: 120, p_window_seconds: 60,
+  });
+  if (rateLimitError) {
+    console.error(JSON.stringify({ event: "rate_limit_check_failed", userId: user.id, message: rateLimitError.message }));
+    return fail(503, "SERVICE_UNAVAILABLE", "Request protection is temporarily unavailable.");
+  }
+  if (!withinLimit) return fail(429, "RATE_LIMITED", "Too many requests. Try again in one minute.");
+
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, "").replace(/^.*\/api-v1/, "") || "/";
   const method = req.method;
@@ -72,6 +91,8 @@ Deno.serve(async (req: Request) => {
 
     if (method === "POST" && path === "/tasks") {
       const body = await bodyJson(req);
+      if (body?.__tooLarge) return fail(413, "PAYLOAD_TOO_LARGE", "JSON request body exceeds 16 KB.");
+      if (body?.__invalidContentType) return fail(415, "UNSUPPORTED_MEDIA_TYPE", "Content-Type must be application/json.");
       if (!body || !validUuid(body.topicId) || !["easy", "medium", "hard"].includes(body.difficulty)) {
         return fail(422, "VALIDATION_ERROR", "topicId and valid difficulty are required.", [
           { field: "topicId", reason: "Expected UUID" },
@@ -115,12 +136,26 @@ Deno.serve(async (req: Request) => {
 
     if (method === "POST" && path === "/submissions") {
       const key = req.headers.get("Idempotency-Key");
-      if (!key || key.length > 128) return fail(400, "BAD_REQUEST", "Idempotency-Key header is required (max 128 chars).");
+      if (!key || key.trim().length === 0 || key.length > 128) return fail(400, "BAD_REQUEST", "Idempotency-Key header is required (1–128 characters).");
       const body = await bodyJson(req);
-      if (!body || !validUuid(body.taskId) || typeof body.storagePath !== "string") {
-        return fail(422, "VALIDATION_ERROR", "taskId and storagePath are required.");
+      if (body?.__tooLarge) return fail(413, "PAYLOAD_TOO_LARGE", "JSON request body exceeds 16 KB.");
+      if (body?.__invalidContentType) return fail(415, "UNSUPPORTED_MEDIA_TYPE", "Content-Type must be application/json.");
+      if (!body || !validUuid(body.taskId) || !validStoragePath(body.storagePath, user.id)) {
+        return fail(422, "VALIDATION_ERROR", "taskId or storagePath has an invalid format.", [
+          { field: "taskId", reason: "Expected UUID" },
+          { field: "storagePath", reason: "Expected <userId>/<taskUuid>/original.jpg, .jpeg, .png or .webp" },
+        ]);
       }
-      if (!body.storagePath.startsWith(`${user.id}/`)) return fail(403, "FORBIDDEN", "Storage path must belong to the authenticated user.");
+
+      const pathParts = body.storagePath.split("/");
+      const fileName = pathParts.pop()!;
+      const folderPath = pathParts.join("/");
+      const { data: storedFiles, error: storageError } = await supabase.storage
+        .from("submissions").list(folderPath, { search: fileName, limit: 10 });
+      if (storageError) throw storageError;
+      if (!(storedFiles ?? []).some((file) => file.name === fileName)) {
+        return fail(404, "NOT_FOUND", "Uploaded image was not found in private storage.");
+      }
 
       const { data: existingKey, error: keyError } = await supabase.from("submission_idempotency")
         .select("submission_id").eq("user_id", user.id).eq("idempotency_key", key).maybeSingle();
@@ -173,10 +208,16 @@ Deno.serve(async (req: Request) => {
         .select("id,task_id,status,passed,ai_feedback,confidence,created_at,checked_at")
         .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(limit + 1);
       if (cursor) {
-        const decoded = atob(cursor);
-        const [createdAt, id] = decoded.split("|");
-        if (!createdAt || !validUuid(id)) return fail(422, "VALIDATION_ERROR", "Invalid cursor.");
-        query = query.or(`created_at.lt.${createdAt},and(created_at.eq.${createdAt},id.lt.${id})`);
+        try {
+          const decoded = atob(cursor);
+          const [createdAt, id, ...rest] = decoded.split("|");
+          if (rest.length || !createdAt || Number.isNaN(Date.parse(createdAt)) || !validUuid(id)) {
+            return fail(422, "VALIDATION_ERROR", "Invalid cursor.");
+          }
+          query = query.or(`created_at.lt.${createdAt},and(created_at.eq.${createdAt},id.lt.${id})`);
+        } catch {
+          return fail(422, "VALIDATION_ERROR", "Invalid cursor.");
+        }
       }
       const { data, error } = await query;
       if (error) throw error;
@@ -244,7 +285,12 @@ Deno.serve(async (req: Request) => {
 
     return fail(404, "NOT_FOUND", "Endpoint not found.");
   } catch (error) {
-    console.error("api-v1 error", error);
+    console.error(JSON.stringify({
+      event: "api_error",
+      path: new URL(req.url).pathname,
+      method: req.method,
+      message: error instanceof Error ? error.message : "Unknown error",
+    }));
     return fail(500, "INTERNAL_ERROR", "An unexpected server error occurred.");
   }
 });

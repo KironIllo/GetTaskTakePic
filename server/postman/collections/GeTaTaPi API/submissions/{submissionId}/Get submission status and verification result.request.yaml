@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{baseUrl}}/submissions/:submissionId"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  submissionId: 853e0165-d543-8cc3-d328-66793783de47
+settings: {}
+examples: ./.resources/Get submission status and verification result.resources/examples
+order: 1000

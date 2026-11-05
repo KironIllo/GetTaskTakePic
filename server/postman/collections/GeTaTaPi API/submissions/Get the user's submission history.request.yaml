@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/submissions?limit=20&cursor=string"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: limit
+    value: "20"
+  - key: cursor
+    value: string
+    description: Cursor returned in the previous page response.
+settings: {}
+examples: ./.resources/Get the user's submission history.resources/examples
+order: 3000

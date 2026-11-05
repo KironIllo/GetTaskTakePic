@@ -1,0 +1,8 @@
+$kind: http-request
+name: /tasks/{{taskId}}
+url: "{{baseUrl}}/tasks/{{taskId}}"
+method: GET
+headers:
+  apikey: "{{anonKey}}"
+  Authorization: Bearer {{accessToken}}
+order: 3000

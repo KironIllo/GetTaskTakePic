@@ -1,0 +1,17 @@
+$kind: http-request
+name: /submissions
+url: "{{baseUrl}}/submissions"
+method: POST
+headers:
+  apikey: "{{anonKey}}"
+  Authorization: Bearer {{accessToken}}
+  Content-Type: application/json
+  Idempotency-Key: "{{idempotencyKey}}"
+body:
+  type: json
+  content: |-
+    {
+      "taskId": "{{taskId}}",
+      "storagePath": "{{storagePath}}"
+    }
+order: 4000

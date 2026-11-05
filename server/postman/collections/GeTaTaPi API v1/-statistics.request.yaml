@@ -1,0 +1,8 @@
+$kind: http-request
+name: /statistics
+url: "{{baseUrl}}/statistics"
+method: GET
+headers:
+  apikey: "{{anonKey}}"
+  Authorization: Bearer {{accessToken}}
+order: 6000

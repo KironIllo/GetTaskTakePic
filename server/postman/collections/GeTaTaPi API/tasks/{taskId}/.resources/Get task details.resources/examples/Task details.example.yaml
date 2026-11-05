@@ -1,0 +1,30 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/tasks/:taskId"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  pathVariables:
+    taskId: 853e0165-d543-8cc3-d328-66793783de47
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "91371324-da27-fa47-c1aa-771fe6cfccbb",
+        "topicId": "32812b62-3082-252b-2dd3-a86f3a9d150a",
+        "difficulty": "hard",
+        "prompt": "string",
+        "status": "active",
+        "createdAt": "1946-12-14T03:11:00.799Z",
+        "expiresAt": "1961-06-12T06:25:25.028Z"
+      }
+order: 1000

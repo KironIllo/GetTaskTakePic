@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/submissions"
+method: POST
+headers:
+  - key: Idempotency-Key
+    value: string
+    description: Unique key used to prevent duplicate submissions on retries.
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "taskId": "9f702be7-b33a-00ea-ab8e-a3dd25fac8b6",
+      "storagePath": "2f1c.../8a4d.../original.jpg"
+    }
+settings: {}
+examples: ./.resources/Create a submission for asynchronous AI verification.resources/examples
+order: 2000

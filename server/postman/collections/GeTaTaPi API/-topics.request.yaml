@@ -1,0 +1,8 @@
+$kind: http-request
+name: /topics
+url: "{{baseUrl}}/topics"
+method: GET
+headers:
+  apikey: "{{anonKey}}"
+  Authorization: Bearer {{accessToken}}
+order: 1000
