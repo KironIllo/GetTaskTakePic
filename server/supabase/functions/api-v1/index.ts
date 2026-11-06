@@ -7,42 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
 };
 
-type ApiError = { code: string; message: string; details?: Array<{field: string; reason: string}> };
-
-function json(data: unknown, status = 200, headers: HeadersInit = {}) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json", ...headers },
-  });
-}
-
-function fail(status: number, code: string, message: string, details: ApiError["details"] = []) {
-  return json({ error: { code, message, details, requestId: crypto.randomUUID() } }, status,
-    status === 429 ? { "Retry-After": "60" } : {});
-}
-
-function getId(path: string, prefix: string): string | null {
-  const match = path.match(new RegExp(`^/${prefix}/([0-9a-fA-F-]{36})$`));
-  return match?.[1] ?? null;
-}
-
-async function bodyJson(req: Request) {
-  const contentType = req.headers.get("Content-Type") ?? "";
-  if (!contentType.toLowerCase().includes("application/json")) return { __invalidContentType: true };
-  const raw = await req.text();
-  if (raw.length > 16_384) return { __tooLarge: true };
-  try { return JSON.parse(raw); } catch { return null; }
-}
-
-function validStoragePath(value: unknown, userId: string): value is string {
-  return typeof value === "string" &&
-    new RegExp(`^${userId}/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/original\\.(jpg|jpeg|png|webp)$`, "i").test(value);
-}
-
-function validUuid(value: unknown): value is string {
-  return typeof value === "string" &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
+import { bodyJson, fail, getId, json, validStoragePath, validUuid } from "./utils.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -105,9 +70,9 @@ Deno.serve(async (req: Request) => {
       if (!topic) return fail(404, "NOT_FOUND", "Active topic not found.");
 
       const prompts: Record<string, string> = {
-        easy: `Сфотографируй любой интересный объект по теме «${topic.title}».`,
-        medium: `Найди необычный объект по теме «${topic.title}» и сделай выразительную фотографию.`,
-        hard: `Сделай оригинальную фотографию по теме «${topic.title}», уделив внимание композиции и деталям.`,
+        easy: `РЎС„РѕС‚РѕРіСЂР°С„РёСЂСѓР№ Р»СЋР±РѕР№ РёРЅС‚РµСЂРµСЃРЅС‹Р№ РѕР±СЉРµРєС‚ РїРѕ С‚РµРјРµ В«${topic.title}В».`,
+        medium: `РќР°Р№РґРё РЅРµРѕР±С‹С‡РЅС‹Р№ РѕР±СЉРµРєС‚ РїРѕ С‚РµРјРµ В«${topic.title}В» Рё СЃРґРµР»Р°Р№ РІС‹СЂР°Р·РёС‚РµР»СЊРЅСѓСЋ С„РѕС‚РѕРіСЂР°С„РёСЋ.`,
+        hard: `РЎРґРµР»Р°Р№ РѕСЂРёРіРёРЅР°Р»СЊРЅСѓСЋ С„РѕС‚РѕРіСЂР°С„РёСЋ РїРѕ С‚РµРјРµ В«${topic.title}В», СѓРґРµР»РёРІ РІРЅРёРјР°РЅРёРµ РєРѕРјРїРѕР·РёС†РёРё Рё РґРµС‚Р°Р»СЏРј.`,
       };
       const { data, error } = await supabase.from("tasks").insert({
         user_id: user.id, topic_id: topic.id, difficulty: body.difficulty,
@@ -136,7 +101,7 @@ Deno.serve(async (req: Request) => {
 
     if (method === "POST" && path === "/submissions") {
       const key = req.headers.get("Idempotency-Key");
-      if (!key || key.trim().length === 0 || key.length > 128) return fail(400, "BAD_REQUEST", "Idempotency-Key header is required (1–128 characters).");
+      if (!key || key.trim().length === 0 || key.length > 128) return fail(400, "BAD_REQUEST", "Idempotency-Key header is required (1вЂ“128 characters).");
       const body = await bodyJson(req);
       if (body?.__tooLarge) return fail(413, "PAYLOAD_TOO_LARGE", "JSON request body exceeds 16 KB.");
       if (body?.__invalidContentType) return fail(415, "UNSUPPORTED_MEDIA_TYPE", "Content-Type must be application/json.");

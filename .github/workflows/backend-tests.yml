@@ -1,0 +1,26 @@
+﻿name: Backend tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Check and test backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Check Edge Function
+        run: deno check server/supabase/functions/api-v1/index.ts
+
+      - name: Run unit tests
+        run: deno test server/test/unit.test.ts
