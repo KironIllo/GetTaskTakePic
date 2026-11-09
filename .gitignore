@@ -3,3 +3,62 @@ secret*
 .env*
 *local*
 *Local*
+
+# ==========================================
+# Word
+~$*
+~WRL*.tmp
+~WRD*.tmp
+~WRS*.tmp
+*.tmp
+*.~*
+*.wbk
+*.docx~
+*.xlsx~
+*.pptx~
+
+# ==========================================
+# Kotlin / Gradle / Java
+.gradle/
+build/
+!**/src/**/build
+!**/test/**/build
+out/
+*.class
+*.log
+
+# Kotlin Multiplatform (KMP) и Kotlin 2.0+
+.kotlin/
+.kotlin-native/
+
+# ==========================================
+# Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Локальные конфигурации проекта
+local.properties
+
+# Нативная сборка (NDK / CMake)
+.cxx/
+.externalNativeBuild/
+
+# Артефакты Android
+captures/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# ==========================================
+# Wrangler / Node.js
+.wrangler/
+node_modules/
+.dev.vars
+
+# ==========================================
+# Прочее
+.DS_Store
+Thumbs.db
