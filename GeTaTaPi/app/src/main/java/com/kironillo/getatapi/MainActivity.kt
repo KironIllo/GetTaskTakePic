@@ -4,14 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.kironillo.getatapi.ui.theme.geTaTaPiTheme
+import com.kironillo.getatapi.ui.components.ThemePreviewScreen
+import com.kironillo.getatapi.ui.theme.GeTaTaPiTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,20 +18,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            geTaTaPiTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    greeting(
+            GeTaTaPiTheme {
+                /*Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding),
                     )
-                }
+                }*/
+                ThemePreviewScreen()
             }
         }
     }
 }
 
 @Composable
-fun greeting(
+fun Greeting(
     name: String,
     modifier: Modifier = Modifier,
 ) {
@@ -45,8 +44,8 @@ fun greeting(
 
 @Preview(showBackground = true)
 @Composable
-fun greetingPreview() {
-    geTaTaPiTheme {
-        greeting("Android")
+fun GreetingPreview() {
+    GeTaTaPiTheme {
+        Greeting("Android")
     }
 }
