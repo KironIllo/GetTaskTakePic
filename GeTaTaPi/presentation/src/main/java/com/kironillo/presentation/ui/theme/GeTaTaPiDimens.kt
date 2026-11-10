@@ -1,4 +1,4 @@
-package com.kironillo.getatapi.ui.theme
+package com.kironillo.presentation.ui.theme
 
 import androidx.compose.ui.unit.dp
 

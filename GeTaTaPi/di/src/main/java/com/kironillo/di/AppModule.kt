@@ -1,4 +1,4 @@
-package com.kironillo.getatapi.di
+package com.kironillo.di
 
 import dagger.Module
 import dagger.hilt.InstallIn

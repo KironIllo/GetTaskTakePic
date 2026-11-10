@@ -8,8 +8,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.kironillo.getatapi.ui.components.ThemePreviewScreen
-import com.kironillo.getatapi.ui.theme.GeTaTaPiTheme
+import com.kironillo.presentation.ui.components.ThemePreviewScreen
+import com.kironillo.presentation.ui.theme.GeTaTaPiTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

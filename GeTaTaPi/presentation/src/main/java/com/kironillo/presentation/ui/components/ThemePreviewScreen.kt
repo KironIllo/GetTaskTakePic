@@ -1,4 +1,4 @@
-package com.kironillo.getatapi.ui.components
+package com.kironillo.presentation.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
