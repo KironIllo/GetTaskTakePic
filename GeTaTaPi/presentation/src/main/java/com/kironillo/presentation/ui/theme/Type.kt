@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.kironillo.getatapi.presentation.R
+import com.kironillo.presentation.R
 
 /*
  * The design specification uses Inter. SansSerif is a build-safe fallback until

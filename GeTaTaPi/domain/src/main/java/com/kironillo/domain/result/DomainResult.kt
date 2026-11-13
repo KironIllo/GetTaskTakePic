@@ -16,4 +16,5 @@ sealed class DomainError {
     data object NotFound : DomainError()
     data object Validation : DomainError()
     data object Unknown : DomainError()
+    data object Timeout : DomainError()
 }

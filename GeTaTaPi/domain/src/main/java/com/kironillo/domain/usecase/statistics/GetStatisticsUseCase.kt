@@ -4,6 +4,7 @@ import com.kironillo.domain.model.Statistics
 import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.domain.repository.StatisticsRepository
 import com.kironillo.domain.result.DomainError
+import com.kironillo.domain.result.DomainException
 import com.kironillo.domain.result.DomainResult
 
 data class StatisticsData(
@@ -24,7 +25,9 @@ class GetStatisticsUseCase(
                 byDifficulty,
                 )
             )
-        } catch (_: Exception){
+        } catch (exception: DomainException) {
+            DomainResult.Error(exception.domainError)
+        } catch (_: Exception) {
             DomainResult.Error(DomainError.Unknown)
         }
     }

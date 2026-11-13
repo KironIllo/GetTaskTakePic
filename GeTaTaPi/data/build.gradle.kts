@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.kironillo.getatapi.data"
+    namespace = "com.kironillo.data"
     compileSdk {
         version = release(37)
     }

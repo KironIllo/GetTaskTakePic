@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.kironillo.getatapi.presentation"
+    namespace = "com.kironillo.presentation"
     compileSdk {
         version = release(37)
     }

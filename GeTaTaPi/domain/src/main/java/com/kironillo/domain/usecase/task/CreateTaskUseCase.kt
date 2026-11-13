@@ -5,6 +5,7 @@ import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.domain.repository.TaskRepository
 import com.kironillo.domain.result.DomainError
 import com.kironillo.domain.result.DomainResult
+import com.kironillo.domain.result.DomainException
 
 class CreateTaskUseCase(
     private val taskRepository: TaskRepository,
@@ -16,6 +17,8 @@ class CreateTaskUseCase(
         return try {
             val task = taskRepository.createTask(topic, difficulty)
             DomainResult.Success(task)
+        } catch (exception: DomainException) {
+            DomainResult.Error(exception.domainError)
         } catch (_: Exception) {
             DomainResult.Error(DomainError.Unknown)
         }
