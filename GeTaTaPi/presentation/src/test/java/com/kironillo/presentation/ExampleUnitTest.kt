@@ -1,4 +1,4 @@
-package com.kironillo.getatapi.presentation
+package com.kironillo.presentation
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

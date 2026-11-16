@@ -1,0 +1,120 @@
+package com.kironillo.presentation.ui.home
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.kironillo.domain.model.Task
+import com.kironillo.presentation.viewmodel.HomeUiState
+import com.kironillo.presentation.viewmodel.HomeViewModel
+
+@Composable
+fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    Scaffold { padding ->
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(20.dp),
+        ) {
+            Text(
+                text = "GeTaTaPi",
+                style = MaterialTheme.typography.headlineMedium,
+            )
+
+            Text(
+                text = "Твои задания",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
+            )
+
+            when (val state = uiState) {
+                HomeUiState.Loading -> {
+                    LoadingContent()
+                }
+
+                is HomeUiState.Content -> {
+                    TasksContent(state.tasks)
+                }
+
+                HomeUiState.Empty -> {
+                    Text("Пока нет заданий. Создай своё первое задание!")
+                }
+
+                is HomeUiState.Error -> {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Text(state.message)
+                        Button(onClick = viewModel::loadTasks) {
+                            Text("Повторить")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadingContent() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        CircularProgressIndicator()
+        Text(
+            text = "Загружаем задания...",
+            modifier = Modifier.padding(top = 12.dp),
+        )
+    }
+}
+
+@Composable
+private fun TasksContent(tasks: List<Task>) {
+    LazyColumn(
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        items(tasks, key = { it.id }) { task ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        text = task.topic,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(task.targetObject)
+                    Text(
+                        text = "Сложность: ${task.difficulty.name}",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        }
+    }
+}
