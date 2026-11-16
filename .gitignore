@@ -1,8 +1,7 @@
 secret*
 .temp
 .env*
-*local*
-*Local*
+local *
 
 # ==========================================
 # Word

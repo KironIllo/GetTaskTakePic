@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
+    //implementation(libs.room.testing)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
@@ -41,8 +42,14 @@ dependencies {
     // Room
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
-    testImplementation(libs.room.testing)
+    androidTestImplementation(libs.room.testing)
 
     // DataStore
     implementation(libs.datastore.preferences)
+
+    androidTestImplementation(libs.androidx.core)
+    androidTestImplementation(libs.androidx.runner)
+}
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }

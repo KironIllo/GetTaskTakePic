@@ -63,4 +63,7 @@ dependencies {
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
     testImplementation(libs.room.testing)
+
+    implementation(libs.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences.core)
 }

@@ -27,4 +27,5 @@ fun Task.toEntity(): TaskEntity = TaskEntity(
     topic = topic,
     difficulty = difficulty.name,
     targetObject = targetObject,
+    cachedAt = System.currentTimeMillis()
 )

@@ -10,4 +10,5 @@ data class TaskEntity(
     val topic: String,
     val difficulty: String,
     val targetObject: String,
+    val cachedAt: Long = 0L
 )
