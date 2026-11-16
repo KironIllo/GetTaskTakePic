@@ -20,6 +20,11 @@ val supabaseUrl = localProperties.getProperty("SUPABASE_URL")
 
 val cleanSupabaseUrl = supabaseUrl.trim().removeSurrounding("\"")
 
+val supabaseAnonKey = localProperties.getProperty("SUPABASE_ANON_KEY")
+    ?: System.getenv("SUPABASE_ANON_KEY")
+    ?: ""
+
+val cleanSupabaseAnonKey = supabaseAnonKey.trim().removeSurrounding("\"")
 
 
 android {
@@ -40,6 +45,11 @@ android {
             "SUPABASE_URL",
             "\"$cleanSupabaseUrl\"",
         )
+        buildConfigField(
+            "String",
+            "SUPABASE_ANON_KEY",
+            "\"$cleanSupabaseAnonKey\"",
+        )
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -59,6 +69,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
 
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)

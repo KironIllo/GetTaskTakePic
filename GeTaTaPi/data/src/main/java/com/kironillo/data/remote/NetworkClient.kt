@@ -10,10 +10,12 @@ object NetworkClient {
 
     fun create(
         tokenProvider: TokenProvider,
+        authenticator: okhttp3.Authenticator,
         isDebug: Boolean,
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(tokenProvider))
+            .authenticator(authenticator)
             .apply {
                 if (isDebug) {
                     addInterceptor(createNetworkLoggingInterceptor())

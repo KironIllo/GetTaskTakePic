@@ -3,6 +3,7 @@ package com.kironillo.data.remote
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.kironillo.data.remote.auth.TokenProvider
+import okhttp3.Authenticator
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -12,6 +13,7 @@ object RetrofitClient {
         baseUrl: String,
         tokenProvider: TokenProvider,
         isDebug: Boolean,
+        authenticator: Authenticator
     ): Retrofit {
         require(baseUrl.endsWith("/")) {
             "https://lhkqqjrpqmgvzbiryugv.supabase.co/functions/v1/api-v1/"
@@ -21,7 +23,7 @@ object RetrofitClient {
 
         return Retrofit.Builder()
             .baseUrl(baseUrl)
-            .client(NetworkClient.create(tokenProvider, isDebug))
+            .client(NetworkClient.create(tokenProvider, authenticator, isDebug))
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }

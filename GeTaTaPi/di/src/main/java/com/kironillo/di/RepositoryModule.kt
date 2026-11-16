@@ -1,7 +1,9 @@
 package com.kironillo.di
 
+import com.kironillo.data.remote.auth.AuthRepositoryImpl
 import com.kironillo.data.repository.SettingsRepositoryImpl
 import com.kironillo.data.repository.TaskRepositoryImpl
+import com.kironillo.domain.repository.AuthRepository
 import com.kironillo.domain.repository.SettingsRepository
 import com.kironillo.domain.repository.TaskRepository
 import dagger.Binds
@@ -19,9 +21,16 @@ abstract class RepositoryModule {
     abstract fun bindTaskRepository(
         implementation: TaskRepositoryImpl,
     ): TaskRepository
+
     @Binds
     @Singleton
     abstract fun bindSettingsRepository(
         implementation: SettingsRepositoryImpl,
     ): SettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(
+        implementation: AuthRepositoryImpl,
+    ): AuthRepository
 }

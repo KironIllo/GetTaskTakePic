@@ -37,6 +37,8 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 | [`docs/04-architecture.docx`](docs/04-architecture.docx) | Архитектура: слои, сущности и тд. |
 | [`docs/05-design-system.docx`](docs/05-design-system.docx) | Дизайн приложения |
 | [`docs/design`](docs/design/) | Дизайн приложения: Экраны, карта навигации |
+| [`docs/08-backend.docx`](docs/08-backend.docx) | Проектирование: модель данных, спецификация API |
+| [`docs/11-server-testing.docx`](docs/11-server-testing.docx) | Тестирование сервера: тест-план, тестовый набор, тест-кейсы |
 
 ---
 
@@ -52,8 +54,7 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 | **DI** | Hilt |
 | **Локальное хранилище** | Room + DataStore |
 | **Backend** | Supabase (Auth, Postgres, Storage, Edge Functions) |
-| **AI (проверка)** | Gemini API (Flash-Lite для MVP) |
-| **AI (пре-фильтр)** | VKCloud Vision |
+| **AI (проверка)** | NVIDIA Nemotron 3.5 Super VL |
 
 Ключ Gemini API не хранится в клиенте: запросы идут через прокси — Supabase Edge Function.
 
@@ -77,6 +78,17 @@ GeTaTaPi превращает прогулку в игру: выбранная �
 - [x] Дизайн-система: `docs/05-design-system.docx`
 - [x] Макеты экранов
 - [x] Прототип и карта навигации
+- [x] Тег `v0.2-design`
+- [x] Модель данных, спецификация API `docs/08-backend.docx`, `openapi.yaml`
+- [x] Хранилище, CRUD, авторизация `server/`
+- [x] Внешние интеграции
+- [x] Тестирование сервера `docs/11-server-testing.docx`, `server/test`
+- [x] Тег `v0.3-backend`
+- [x] Модули domain, data, presentation, di
+- [x] Тема и дизайн-система `ui/theme`, `ui/components`
+- [x] Domain-слой `data/remote`, `data/mapper`
+- [x] Локальное хранилище `data/local`
+- [x] Навигация и первый экран
 
 - [ ] Потом допишу
 
