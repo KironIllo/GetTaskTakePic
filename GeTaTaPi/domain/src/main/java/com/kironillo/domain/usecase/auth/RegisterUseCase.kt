@@ -1,5 +1,6 @@
 package com.kironillo.domain.usecase.auth
 
+import com.kironillo.domain.model.AuthRegistrationResult
 import com.kironillo.domain.repository.AuthRepository
 
 class RegisterUseCase(
@@ -8,7 +9,7 @@ class RegisterUseCase(
     suspend operator fun invoke(
         email: String,
         password: String,
-    ): String {
+    ): AuthRegistrationResult {
         return repository.register(email, password)
     }
 }

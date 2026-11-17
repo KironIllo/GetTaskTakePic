@@ -26,8 +26,14 @@ import com.kironillo.presentation.viewmodel.HomeUiState
 import com.kironillo.presentation.viewmodel.HomeViewModel
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    onLogout: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsState()
+
+    val logoutError by viewModel.logoutError.collectAsState()
+    val isLoggingOut by viewModel.isLoggingOut.collectAsState()
 
     Scaffold { padding ->
         Column(
@@ -41,6 +47,28 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 text = "GeTaTaPi",
                 style = MaterialTheme.typography.headlineMedium,
             )
+
+            Button(
+                onClick = {
+                    viewModel.logout(onLogout)
+                },
+                enabled = !isLoggingOut,
+                modifier = Modifier.padding(top = 12.dp),
+            ) {
+                if (isLoggingOut) {
+                    CircularProgressIndicator()
+                } else {
+                    Text("Выйти из аккаунта")
+                }
+            }
+
+            logoutError?.let { error ->
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
 
             Text(
                 text = "Твои задания",

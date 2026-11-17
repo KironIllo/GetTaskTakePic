@@ -2,8 +2,11 @@ package com.kironillo.data.remote.auth
 
 import com.kironillo.data.remote.dto.AuthRequestDto
 import com.kironillo.data.remote.dto.AuthResponseDto
+import com.kironillo.data.remote.dto.CurrentUserDto
 import com.kironillo.data.remote.dto.RefreshTokenRequestDto
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -25,4 +28,9 @@ interface AuthApi {
         @Query("grant_type") grantType: String = "refresh_token",
         @Body request: RefreshTokenRequestDto,
     ): AuthResponseDto
+
+    @GET("user")
+    suspend fun getCurrentUser(
+        @Header("Authorization") authorization: String,
+    ): CurrentUserDto
 }

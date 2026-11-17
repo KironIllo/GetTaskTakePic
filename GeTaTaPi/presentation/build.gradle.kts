@@ -54,4 +54,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.kotlinx.coroutines.test)
+
+    implementation(libs.retrofit)
 }

@@ -1,11 +1,22 @@
 package com.kironillo.domain.repository
 
-interface AuthRepository {
-    suspend fun register(email: String, password: String): String
+import com.kironillo.domain.model.AuthRegistrationResult
 
-    suspend fun login(email: String, password: String): String
+interface AuthRepository {
+
+    suspend fun register(
+        email: String,
+        password: String,
+    ): AuthRegistrationResult
+
+    suspend fun login(
+        email: String,
+        password: String,
+    ): String
 
     suspend fun logout()
 
     suspend fun getUserId(): String?
+
+    suspend fun restoreSession(): String?
 }
