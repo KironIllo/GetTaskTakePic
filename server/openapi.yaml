@@ -47,6 +47,27 @@ paths:
           $ref: '#/components/responses/InternalError'
 
   /tasks:
+    get:
+      tags: [Tasks]
+      summary: Get the authenticated user's tasks
+      operationId: getTasks
+      responses:
+        '200':
+          description: Tasks retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
     post:
       tags: [Tasks]
       summary: Create a photo challenge task
@@ -302,7 +323,7 @@ components:
 
     Task:
       type: object
-      required: [id, topicId, difficulty, prompt, status, createdAt]
+      required: [id, topicId, topicTitle, difficulty, prompt, status, createdAt]
       properties:
         id:
           type: string
@@ -310,6 +331,8 @@ components:
         topicId:
           type: string
           format: uuid
+        topicTitle:
+          type: string
         difficulty:
           $ref: '#/components/schemas/Difficulty'
         prompt:

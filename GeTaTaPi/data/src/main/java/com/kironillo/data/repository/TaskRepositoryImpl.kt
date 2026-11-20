@@ -64,6 +64,22 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTasks(): List<Task> {
-        return taskDao.getAllTasks().map { it.toDomain() }
+        val cachedTasks = taskDao.getAllTasks().map { it.toDomain() }
+
+        if (!networkConnectivity.isConnected()) {
+            return cachedTasks.ifEmpty { throw DomainException(DomainError.Network) }
+        }
+
+        return try {
+            val remoteTasks = taskApi.getTasks().data.map { it.toDomain() }
+            // The server is the source of truth: replace the local snapshot, including when empty.
+            taskDao.replaceTasks(remoteTasks.map { it.toEntity() })
+            remoteTasks
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            if (cachedTasks.isNotEmpty()) cachedTasks
+            else throw DomainException(errorHandler.mapError(exception))
+        }
     }
 }
