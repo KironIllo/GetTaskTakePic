@@ -8,7 +8,7 @@ import com.kironillo.data.local.entity.TaskEntity
 fun TaskDto.toDomain(): Task {
     return Task(
         id = id,
-        topic = topicId,
+        topic = topicTitle,
         difficulty = TaskDifficulty.valueOf(difficulty.uppercase()),
         targetObject = prompt,
     )

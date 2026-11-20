@@ -39,6 +39,27 @@ class TaskRepositoryImplTest {
     }
 
     @Test
+    fun `loads tasks from server and refreshes local cache`() = runBlocking {
+        api.tasks = listOf(api.sampleTask())
+
+        val tasks = repository.getTasks()
+
+        assertEquals(1, tasks.size)
+        assertEquals("Природа", tasks.first().topic)
+        assertEquals(1, taskDao.getAllTasks().size)
+    }
+
+    @Test
+    fun `returns cached tasks when list request fails`() = runBlocking {
+        repository.createTask("animals", TaskDifficulty.EASY)
+        api.shouldFail = true
+
+        val tasks = repository.getTasks()
+
+        assertEquals(1, tasks.size)
+    }
+
+    @Test
     fun `returns domain error when server is unavailable and cache is empty`() {
         api.shouldFail = true
         networkConnectivity.connected = false
@@ -75,12 +96,29 @@ class TaskRepositoryImplTest {
 
     private class FakeTaskApi : TaskApi {
         var shouldFail = false
+        var tasks: List<TaskDto> = listOf(sampleTask())
+
+        fun sampleTask() = TaskDto(
+            id = "task-1",
+            topicId = "topic-uuid",
+            topicTitle = "Природа",
+            difficulty = "easy",
+            prompt = "Find a cat",
+            status = "active",
+            createdAt = "2026-11-13T10:00:00Z",
+            expiresAt = "2026-11-14T10:00:00Z",
+        )
 
         override suspend fun createTask(
             request: CreateTaskRequestDto,
         ): TaskDto {
             if (shouldFail) throw IOException()
-            return sampleTask()
+            return sampleTask().also { tasks = listOf(it) }
+        }
+
+        override suspend fun getTasks(): com.kironillo.data.remote.dto.TaskListResponseDto {
+            if (shouldFail) throw IOException()
+            return com.kironillo.data.remote.dto.TaskListResponseDto(tasks)
         }
 
         override suspend fun getTask(id: String): TaskDto {
@@ -88,15 +126,6 @@ class TaskRepositoryImplTest {
             return sampleTask()
         }
 
-        private fun sampleTask() = TaskDto(
-            id = "task-1",
-            topicId = "animals",
-            difficulty = "easy",
-            prompt = "Find a cat",
-            status = "active",
-            createdAt = "2026-11-13T10:00:00Z",
-            expiresAt = "2026-11-14T10:00:00Z",
-        )
     }
 
     private class FakeTaskDao : TaskDao {

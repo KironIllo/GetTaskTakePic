@@ -86,42 +86,45 @@ class AuthRepositoryImpl @Inject constructor(
         val accessToken = sessionDataStore.getAccessToken()
         val refreshToken = sessionDataStore.getRefreshToken()
 
-        if (accessToken.isNullOrBlank() ||
-            refreshToken.isNullOrBlank()
-        ) {
-            sessionDataStore.clearSession()
-            return null
-        }
-
-        // Если токен истёк, сначала обновляем его.
-        if (sessionDataStore.isTokenExpired()) {
-            if (!refreshSession()) {
-                sessionDataStore.clearSession()
-                return null
-            }
-        }
-
-        val currentAccessToken =
-            sessionDataStore.getAccessToken()
-
-        if (currentAccessToken.isNullOrBlank()) {
+        if (accessToken.isNullOrBlank() || refreshToken.isNullOrBlank()) {
             sessionDataStore.clearSession()
             return null
         }
 
         return try {
-            // Проверяем существование пользователя на сервере.
-            val currentUser = authApi.getCurrentUser(
-                "Bearer $currentAccessToken",
-            )
+            // Если access token истёк, пробуем обновить его.
+            // При отсутствии сети refreshSession выбросит IOException;
+            // в этом случае ниже вернём сохранённую локальную сессию.
+            if (sessionDataStore.isTokenExpired()) {
+                if (!refreshSession()) {
+                    sessionDataStore.clearSession()
+                    return null
+                }
+            }
 
-            currentUser.id
-        } catch (exception: HttpException) {
-            if (exception.code() in listOf(401, 403, 404)) {
+            val currentAccessToken = sessionDataStore.getAccessToken()
+            if (currentAccessToken.isNullOrBlank()) {
                 sessionDataStore.clearSession()
-                null
-            } else {
-                throw exception
+                return null
+            }
+
+            // При доступном сервере проверяем, что пользователь всё ещё существует.
+            authApi.getCurrentUser("Bearer $currentAccessToken").id
+        } catch (exception: java.io.IOException) {
+            // Нет сети: сохраняем возможность открыть приложение офлайн.
+            userId
+        } catch (exception: HttpException) {
+            when {
+                exception.code() in listOf(401, 403, 404) -> {
+                    // Сервер явно отклонил сессию или не нашёл пользователя.
+                    sessionDataStore.clearSession()
+                    null
+                }
+                exception.code() >= 500 -> {
+                    // Временная ошибка сервера: используем локальную сессию.
+                    userId
+                }
+                else -> throw exception
             }
         }
     }

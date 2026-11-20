@@ -277,20 +277,38 @@ Deno.serve(async (req: Request) => {
       if (error) throw error;
 
       return json({
-        id: data.id, topicId: data.topic_id, difficulty: data.difficulty,
+        id: data.id, topicId: data.topic_id, topicTitle: topic.title, difficulty: data.difficulty,
         prompt: data.prompt, status: data.status, createdAt: data.created_at, expiresAt: data.expires_at,
       }, 201);
+    }
+
+    if (method === "GET" && path === "/tasks") {
+      const { data, error } = await supabase.from("tasks")
+        .select("id,topic_id,difficulty,prompt,status,created_at,expires_at,topics(title)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return json({ data: (data ?? []).map((task) => ({
+        id: task.id,
+        topicId: task.topic_id,
+        topicTitle: task.topics?.[0]?.title ?? "",
+        difficulty: task.difficulty,
+        prompt: task.prompt,
+        status: task.status,
+        createdAt: task.created_at,
+        expiresAt: task.expires_at,
+      })) });
     }
 
     const taskId = getId(path, "tasks");
     if (method === "GET" && taskId) {
       const { data, error } = await supabase.from("tasks")
-        .select("id,topic_id,difficulty,prompt,status,created_at,expires_at")
-        .eq("id", taskId).maybeSingle();
+        .select("id,topic_id,difficulty,prompt,status,created_at,expires_at,topics(title)")
+        .eq("id", taskId).eq("user_id", user.id).maybeSingle();
       if (error) throw error;
       if (!data) return fail(404, "NOT_FOUND", "Task not found.");
       return json({
-        id: data.id, topicId: data.topic_id, difficulty: data.difficulty,
+        id: data.id, topicId: data.topic_id, topicTitle: data.topics?.[0]?.title ?? "", difficulty: data.difficulty,
         prompt: data.prompt, status: data.status, createdAt: data.created_at, expiresAt: data.expires_at,
       });
     }

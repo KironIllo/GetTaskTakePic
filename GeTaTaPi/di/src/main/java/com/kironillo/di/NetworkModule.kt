@@ -10,7 +10,9 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import javax.inject.Singleton
 import com.kironillo.data.remote.NetworkErrorHandler
+import com.kironillo.data.remote.StorageApi
 import com.kironillo.data.remote.auth.AuthApi
+import com.kironillo.data.remote.auth.AuthInterceptor
 import com.kironillo.data.remote.auth.DataStoreTokenProvider
 import com.kironillo.data.remote.auth.SupabaseAuthenticator
 import com.kironillo.data.remote.auth.SupabaseKeyInterceptor
@@ -47,6 +49,36 @@ object NetworkModule {
     @Singleton
     fun provideTaskApi(retrofit: Retrofit): TaskApi =
         retrofit.create(TaskApi::class.java)
+
+    @Provides
+    @Singleton
+    @Named("storageRetrofit")
+    fun provideStorageRetrofit(
+        tokenProvider: TokenProvider,
+        authenticator: Authenticator,
+    ): Retrofit {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(tokenProvider))
+            .addInterceptor(
+                SupabaseKeyInterceptor(BuildConfig.SUPABASE_ANON_KEY),
+            )
+            .authenticator(authenticator)
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.SUPABASE_URL.trimEnd('/') + "/storage/v1/")
+            .client(client)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideStorageApi(
+        @Named("storageRetrofit") retrofit: Retrofit,
+    ): StorageApi = retrofit.create(StorageApi::class.java)
 
     @Provides
     @Singleton

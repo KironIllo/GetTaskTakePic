@@ -58,6 +58,7 @@ Authorization: Bearer <access_token>
 | Метод | Путь | Назначение |
 |---|---|---|
 | GET | `/topics` | Список активных тем |
+| GET | `/tasks` | Список своих заданий |
 | POST | `/tasks` | Создать задание |
 | GET | `/tasks/{taskId}` | Получить своё задание |
 | POST | `/submissions` | Создать отправку для проверки |

@@ -19,6 +19,8 @@ class HomeViewModel
         private val getTasksUseCase: GetTasksUseCase,
         private val logoutUseCase: LogoutUseCase,
     ) : ViewModel() {
+        private var lastLoadAttemptAt = 0L
+
         private val _uiState =
             MutableStateFlow<HomeUiState>(HomeUiState.Loading)
 
@@ -35,8 +37,24 @@ class HomeViewModel
         }
 
         fun loadTasks() {
+            loadTasks(showLoading = true)
+        }
+
+        /** Refreshes tasks when the app returns to the foreground.
+         * A short throttle prevents duplicate requests during quick lifecycle changes.
+         */
+        fun refreshTasks() {
+            val now = System.currentTimeMillis()
+            if (now - lastLoadAttemptAt < REFRESH_INTERVAL_MS) return
+            loadTasks(showLoading = _uiState.value !is HomeUiState.Content && _uiState.value != HomeUiState.Empty)
+        }
+
+        private fun loadTasks(showLoading: Boolean) {
+            lastLoadAttemptAt = System.currentTimeMillis()
             viewModelScope.launch {
-                _uiState.value = HomeUiState.Loading
+                if (showLoading) {
+                    _uiState.value = HomeUiState.Loading
+                }
 
                 when (val result = getTasksUseCase()) {
                     is DomainResult.Success -> {
@@ -49,13 +67,20 @@ class HomeViewModel
                     }
 
                     is DomainResult.Error -> {
-                        _uiState.value =
-                            HomeUiState.Error(
-                                message = "Не удалось загрузить задачи. Попробуйте ещё раз.",
-                            )
+                        // Keep already displayed cached data if a background refresh fails.
+                        if (showLoading || (_uiState.value !is HomeUiState.Content && _uiState.value != HomeUiState.Empty)) {
+                            _uiState.value =
+                                HomeUiState.Error(
+                                    message = "Не удалось загрузить задачи. Попробуйте ещё раз.",
+                                )
+                        }
                     }
                 }
             }
+        }
+
+        private companion object {
+            const val REFRESH_INTERVAL_MS = 30_000L
         }
 
         fun logout(onSuccess: () -> Unit) {

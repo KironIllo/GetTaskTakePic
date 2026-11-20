@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.kironillo.data.local.entity.TaskEntity
 
 @Dao
@@ -14,6 +15,12 @@ interface TaskDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTasks(tasks: List<TaskEntity>)
+
+    @Transaction
+    suspend fun replaceTasks(tasks: List<TaskEntity>) {
+        clearTasks()
+        if (tasks.isNotEmpty()) insertTasks(tasks)
+    }
 
     @Query("SELECT * FROM tasks WHERE id = :id LIMIT 1")
     suspend fun getTaskById(id: String): TaskEntity?

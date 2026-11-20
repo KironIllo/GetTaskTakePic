@@ -11,7 +11,8 @@ class TaskMapperTest {
     fun `toDomain maps task dto correctly`() {
         val dto = TaskDto(
             id = "task-1",
-            topicId = "nature",
+            topicId = "topic-uuid",
+            topicTitle = "Природа",
             difficulty = "EASY",
             prompt = "Find a tree",
             status = "active",
@@ -22,7 +23,7 @@ class TaskMapperTest {
         val result = dto.toDomain()
 
         assertEquals("task-1", result.id)
-        assertEquals("nature", result.topic)
+        assertEquals("Природа", result.topic)
         assertEquals(TaskDifficulty.EASY, result.difficulty)
         assertEquals("Find a tree", result.targetObject)
     }
