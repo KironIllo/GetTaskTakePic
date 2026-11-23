@@ -52,11 +52,14 @@ export async function bodyJson(req: Request) {
 }
 
 export function validStoragePath(value: unknown, userId: string): value is string {
-  return typeof value === "string" &&
-    new RegExp(
-      `^${userId}/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/original\\.(jpg|jpeg|png|webp)$`,
-      "i",
-    ).test(value);
+  if (typeof value !== "string") return false;
+
+  const escapedUserId = userId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  return new RegExp(
+    `^${escapedUserId}/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\.(jpg|jpeg|png|webp)$`,
+    "i",
+  ).test(value);
 }
 
 export function validUuid(value: unknown): value is string {

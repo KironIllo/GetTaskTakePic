@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -20,32 +22,37 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.kironillo.presentation.ui.components.PrimaryButton
 import com.kironillo.presentation.ui.components.SecondaryButton
+import com.kironillo.presentation.viewmodel.ReviewUiState
+import com.kironillo.presentation.viewmodel.ReviewViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
 fun ReviewScreen(
+    taskId: String,
     photoUri: Uri,
     onBack: () -> Unit,
     onRetake: () -> Unit,
     onChooseAnother: () -> Unit,
+    viewModel: ReviewViewModel = hiltViewModel(),
+    onGoHome: () -> Unit,
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsState()
 
     val bitmap by produceState<android.graphics.Bitmap?>(
         initialValue = null,
@@ -125,19 +132,73 @@ fun ReviewScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             PrimaryButton(
-                text = "Отправить на проверку",
+                text =
+                    when (uiState) {
+                        ReviewUiState.Loading -> "Отправка..."
+                        is ReviewUiState.Success -> "Отправлено"
+                        else -> "Отправить на проверку"
+                    },
                 onClick = {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            "Отправка на сервер будет подключена следующим этапом",
-                        )
-                    }
+                    viewModel.submitPhoto(
+                        taskId = taskId,
+                        photoPath = photoUri.toString(),
+                    )
                 },
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .height(56.dp),
+                enabled =
+                    uiState is ReviewUiState.Idle ||
+                        uiState is ReviewUiState.Error,
             )
+
+            when (val state = uiState) {
+                ReviewUiState.Loading -> {
+                    CircularProgressIndicator()
+                    Text("Отправляем фотографию...")
+                }
+
+                is ReviewUiState.Processing -> {
+                    CircularProgressIndicator()
+                    Text("Фотография обрабатывается...")
+                    Text("Номер отправки: ${state.submissionId}")
+                }
+
+                is ReviewUiState.Success -> {
+                    Text(
+                        if (state.result.passed == true) {
+                            "Задание выполнено!"
+                        } else {
+                            "Задание не пройдено"
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+
+                    state.result.feedback?.let {
+                        Text(it)
+                    }
+
+                    state.result.confidence?.let {
+                        Text("Уверенность: ${(it * 100).toInt()}%")
+                    }
+                    Button(
+                        onClick = onGoHome,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("На главный экран")
+                    }
+                }
+
+                is ReviewUiState.Error -> {
+                    Text(
+                        text = state.message,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+
+                ReviewUiState.Idle -> Unit
+            }
 
             SecondaryButton(
                 text = "Переснять",

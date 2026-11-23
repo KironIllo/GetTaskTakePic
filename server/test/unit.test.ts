@@ -9,6 +9,7 @@
 
 const USER_ID = "0cb9ced3-6b88-4f89-ba43-5bf76f4115c5";
 const TASK_ID = "507b5545-b092-43b1-a16c-9933ced667fd";
+const SUBMISSION_ID = "a1b2c3d4-e5f6-4789-8abc-123456789012";
 
 Deno.test("1. validUuid accepts a valid UUID", () => {
   if (!validUuid(TASK_ID)) throw new Error("Valid UUID rejected");
@@ -40,13 +41,15 @@ Deno.test("6. getId rejects an incomplete ID", () => {
 });
 
 Deno.test("7. validStoragePath accepts a user's JPG path", () => {
-  const path = `${USER_ID}/${TASK_ID}/original.jpg`;
-  if (!validStoragePath(path, USER_ID)) throw new Error("Valid path rejected");
+  const path = `${USER_ID}/${TASK_ID}/${SUBMISSION_ID}.jpg`;
+  if (!validStoragePath(path, USER_ID)) {
+    throw new Error("Valid JPG path rejected");
+  }
 });
 
 Deno.test("8. validStoragePath accepts PNG and WebP", () => {
   for (const extension of ["png", "webp"]) {
-    const path = `${USER_ID}/${TASK_ID}/original.${extension}`;
+    const path = `${USER_ID}/${TASK_ID}/${SUBMISSION_ID}.${extension}`;
     if (!validStoragePath(path, USER_ID)) {
       throw new Error(`Valid ${extension} path rejected`);
     }
@@ -54,13 +57,17 @@ Deno.test("8. validStoragePath accepts PNG and WebP", () => {
 });
 
 Deno.test("9. validStoragePath rejects another user's path", () => {
-  const path = `${TASK_ID}/${TASK_ID}/original.jpg`;
-  if (validStoragePath(path, USER_ID)) throw new Error("Foreign path accepted");
+  const path = `${TASK_ID}/${TASK_ID}/${SUBMISSION_ID}.jpg`;
+  if (validStoragePath(path, USER_ID)) {
+    throw new Error("Foreign path accepted");
+  }
 });
 
 Deno.test("10. validStoragePath rejects unsupported extensions", () => {
-  const path = `${USER_ID}/${TASK_ID}/original.exe`;
-  if (validStoragePath(path, USER_ID)) throw new Error("Unsupported extension accepted");
+  const path = `${USER_ID}/${TASK_ID}/${SUBMISSION_ID}.exe`;
+  if (validStoragePath(path, USER_ID)) {
+    throw new Error("Unsupported extension accepted");
+  }
 });
 
 Deno.test("11. json returns the requested HTTP status and JSON body", async () => {

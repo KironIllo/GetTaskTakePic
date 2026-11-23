@@ -1,6 +1,8 @@
 package com.kironillo.domain.usecase.photo
 
 import com.kironillo.domain.model.Answer
+import com.kironillo.domain.model.SubmissionHistoryPage
+import com.kironillo.domain.model.SubmissionResult
 import com.kironillo.domain.repository.PhotoRepository
 import com.kironillo.domain.result.DomainError
 import com.kironillo.domain.result.DomainResult
@@ -38,6 +40,10 @@ class CheckPhotoUseCaseTest {
         }
 
         override suspend fun savePhoto(photoPath: String, latitude: Double?, longitude: Double?) = Unit
+        override suspend fun getPhotoUrl(storagePath: String) = ""
+        override suspend fun getSubmissionHistory(limit: Int,cursor: String?) = SubmissionHistoryPage(emptyList(), null)
+        override suspend fun getSubmissionStatus(submissionId: String) = SubmissionResult("", "", null, null,null,null)
+        override suspend fun submitPhoto(taskId: String,photoPath: String,idempotencyKey: String) = ""
     }
 }
 

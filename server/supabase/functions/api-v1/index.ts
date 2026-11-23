@@ -124,7 +124,7 @@ async function processSubmission(submissionId: string) {
         body: JSON.stringify({
           model,
           temperature: 0.1,
-          max_tokens: 500,
+          max_tokens: 800,
           messages: [{
             role: "user",
             content: [
@@ -155,7 +155,39 @@ async function processSubmission(submissionId: string) {
     }
 
     const aiJson = await aiResponse.json();
-    const content = aiJson?.choices?.[0]?.message?.content;
+
+    const choice = aiJson?.choices?.[0];
+    const message = choice?.message;
+    const rawContent = message?.content;
+
+    let content = "";
+
+    if (typeof rawContent === "string") {
+      content = rawContent;
+    } else if (Array.isArray(rawContent)) {
+      content = rawContent
+        .filter((item: any) => item?.type === "text" && typeof item.text === "string")
+        .map((item: any) => item.text)
+        .join("\n");
+    }
+
+    if (!content.trim()) {
+      console.error(JSON.stringify({
+        event: "openrouter_empty_response",
+        submissionId,
+        model: aiJson?.model,
+        provider: choice?.provider,
+        finishReason: choice?.finish_reason,
+        messageKeys: message ? Object.keys(message) : [],
+        usage: aiJson?.usage,
+        providerError: aiJson?.error ?? null,
+      }));
+
+      throw new Error(
+        `OpenRouter returned empty content. Finish reason: ${choice?.finish_reason ?? "unknown"}`
+      );
+    }
+
     const result = parseModelJson(content);
 
     const { error: updateError } = await admin
@@ -324,7 +356,7 @@ Deno.serve(async (req: Request) => {
       if (!body || !validUuid(body.taskId) || !validStoragePath(body.storagePath, user.id)) {
         return fail(422, "VALIDATION_ERROR", "taskId or storagePath has an invalid format.", [
           { field: "taskId", reason: "Expected UUID" },
-          { field: "storagePath", reason: "Expected <userId>/<taskUuid>/original.jpg, .jpeg, .png or .webp" },
+          { field: "storagePath", reason: "Expected <userId>/<taskUuid>/<submissionUuid>.(jpg|jpeg|png|webp)" },
         ]);
       }
 
@@ -395,7 +427,7 @@ Deno.serve(async (req: Request) => {
       const cursor = url.searchParams.get("cursor");
 
       let query = supabase.from("submissions")
-        .select("id,task_id,status,passed,ai_feedback,confidence,created_at,checked_at")
+        .select("id,task_id,storage_path,status,passed,ai_feedback,confidence,created_at,checked_at")
         .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(limit + 1);
 
       if (cursor) {
@@ -421,7 +453,7 @@ Deno.serve(async (req: Request) => {
 
       return json({
         data: pageRows.map((s) => ({
-          id: s.id, taskId: s.task_id, status: s.status, passed: s.passed,
+          id: s.id, taskId: s.task_id, storagePath: s.storage_path, status: s.status, passed: s.passed,
           feedback: s.ai_feedback, confidence: s.confidence, createdAt: s.created_at, checkedAt: s.checked_at,
         })),
         page: { limit, nextCursor },

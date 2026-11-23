@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +36,7 @@ fun HomeScreen(
     onLogout: () -> Unit,
     onTaskSelected: (Task) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
+    onHistory: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -80,6 +82,13 @@ fun HomeScreen(
                 } else {
                     Text("Выйти из аккаунта")
                 }
+            }
+
+            OutlinedButton(
+                onClick = onHistory,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("История проверок")
             }
 
             logoutError?.let { error ->

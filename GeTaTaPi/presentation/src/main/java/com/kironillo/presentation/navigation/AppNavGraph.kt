@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.presentation.ui.auth.AuthScreen
+import com.kironillo.presentation.ui.history.HistoryScreen
 import com.kironillo.presentation.ui.home.HomeScreen
 import com.kironillo.presentation.ui.task.ReviewScreen
 import com.kironillo.presentation.ui.task.TaskScreen
@@ -26,12 +27,17 @@ object AppRoutes {
     const val AUTH = "auth"
     const val HOME = "home"
     const val TASK = "task/{taskId}/{topic}/{difficulty}/{targetObject}"
-    const val REVIEW = "review/{photoUri}"
+    const val REVIEW = "review/{taskId}/{photoUri}"
+
+    const val HISTORY = "history"
 
     fun taskRoute(task: Task): String =
         "task/${Uri.encode(task.id)}/${Uri.encode(task.topic)}/${task.difficulty.name}/${Uri.encode(task.targetObject)}"
 
-    fun reviewRoute(uri: Uri): String = "review/${Uri.encode(uri.toString())}"
+    fun reviewRoute(
+        taskId: String,
+        uri: Uri,
+    ): String = "review/${Uri.encode(taskId)}/${Uri.encode(uri.toString())}"
 }
 
 @Composable
@@ -88,6 +94,9 @@ private fun MainNavHost(startDestination: String) {
                         launchSingleTop = true
                     }
                 },
+                onHistory = {
+                    navController.navigate(AppRoutes.HISTORY)
+                },
             )
         }
 
@@ -120,12 +129,16 @@ private fun MainNavHost(startDestination: String) {
                     ),
                 onBack = { navController.popBackStack() },
                 onPhotoSelected = { uri ->
-                    navController.navigate(AppRoutes.reviewRoute(uri))
+                    navController.navigate(AppRoutes.reviewRoute(taskId, uri))
                 },
             )
         }
 
         composable(AppRoutes.REVIEW) { backStackEntry ->
+            val taskId =
+                Uri.decode(
+                    backStackEntry.arguments?.getString("taskId").orEmpty(),
+                )
             val photoUri =
                 Uri.parse(
                     Uri.decode(
@@ -134,10 +147,27 @@ private fun MainNavHost(startDestination: String) {
                 )
 
             ReviewScreen(
+                taskId = taskId,
                 photoUri = photoUri,
                 onBack = { navController.popBackStack() },
                 onRetake = { navController.popBackStack() },
                 onChooseAnother = { navController.popBackStack() },
+                onGoHome = {
+                    navController.navigate(AppRoutes.HOME) {
+                        popUpTo(AppRoutes.HOME) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+
+        composable(AppRoutes.HISTORY) {
+            HistoryScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
             )
         }
     }
