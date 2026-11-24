@@ -7,8 +7,10 @@ import com.kironillo.data.remote.TaskApi
 import com.kironillo.data.remote.NetworkErrorHandler
 import com.kironillo.data.remote.connectivity.NetworkConnectivity
 import com.kironillo.data.remote.dto.CreateTaskRequestDto
+import com.kironillo.data.remote.TopicApi
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
+import com.kironillo.domain.model.Topic
 import com.kironillo.domain.repository.TaskRepository
 import com.kironillo.domain.result.DomainError
 import com.kironillo.domain.result.DomainException
@@ -19,6 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class TaskRepositoryImpl @Inject constructor(
     private val taskApi: TaskApi,
+    private val topicApi: TopicApi,
     private val taskDao: TaskDao,
     private val errorHandler: NetworkErrorHandler,
     private val networkConnectivity: NetworkConnectivity,
@@ -60,6 +63,16 @@ class TaskRepositoryImpl @Inject constructor(
             throw exception
         } catch (exception: Exception) {
             cachedTask ?: throw DomainException(errorHandler.mapError(exception))
+        }
+    }
+
+    override suspend fun getTopics(): List<Topic> {
+        try {
+            return topicApi.getTopics().data.filter { it.isActive }.sortedBy { it.sortOrder }.map { Topic(it.id, it.title) }
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            throw DomainException(errorHandler.mapError(exception))
         }
     }
 

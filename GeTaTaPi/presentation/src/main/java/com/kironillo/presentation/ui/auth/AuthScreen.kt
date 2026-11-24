@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kironillo.domain.validation.AuthFormValidator
 import com.kironillo.presentation.viewmodel.AuthUiState
 import com.kironillo.presentation.viewmodel.AuthViewModel
 
@@ -158,15 +159,12 @@ fun AuthScreen(
             Button(
                 onClick = {
                     validationError =
-                        when {
-                            email.isBlank() -> "Введите email"
-                            !email.contains("@") -> "Проверьте email"
-                            password.length < 6 -> "Пароль должен содержать минимум 6 символов"
-                            isRegister && password != confirmPassword ->
-                                "Пароли не совпадают"
-
-                            else -> null
-                        }
+                        AuthFormValidator.validate(
+                            email = email,
+                            password = password,
+                            confirmPassword = confirmPassword,
+                            isRegistration = isRegister,
+                        ).firstError
                     if (validationError == null) {
                         if (isRegister) {
                             viewModel.register(email, password)

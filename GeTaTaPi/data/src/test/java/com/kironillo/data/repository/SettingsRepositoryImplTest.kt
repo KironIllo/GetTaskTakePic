@@ -3,6 +3,7 @@ package com.kironillo.data.repository
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.kironillo.data.local.datastore.SettingsDataStore
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,6 +35,30 @@ class SettingsRepositoryImplTest {
         repository.setGeolocationEnabled(false)
 
         assertFalse(repository.isGeolocationEnabled())
+    }
+
+    @Test
+    fun `notifications are enabled by default`() = runBlocking {
+        val repository = createRepository()
+
+        assertTrue(repository.areNotificationsEnabled())
+    }
+
+    @Test
+    fun `saves notifications preference`() = runBlocking {
+        val repository = createRepository()
+
+        repository.setNotificationsEnabled(false)
+
+        assertFalse(repository.areNotificationsEnabled())
+    }
+
+
+    @Test
+    fun `theme mode is persisted`() = runBlocking {
+        val repository = createRepository()
+        repository.setThemeMode("DARK")
+        assertTrue(repository.observeThemeMode().first() == "DARK")
     }
 
     private fun createRepository(): SettingsRepositoryImpl {

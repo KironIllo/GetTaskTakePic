@@ -2,6 +2,7 @@ package com.kironillo.domain.usecase.task
 
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
+import com.kironillo.domain.model.Topic
 import com.kironillo.domain.repository.TaskRepository
 import com.kironillo.domain.result.DomainError
 import com.kironillo.domain.result.DomainException
@@ -57,7 +58,9 @@ class GetTasksUseCaseTest {
         private val error: Exception? = null,
     ) : TaskRepository {
 
-        override suspend fun getTasks(): List<Task> {
+        override suspend fun getTopics(): List<Topic> = emptyList()
+
+    override suspend fun getTasks(): List<Task> {
             error?.let { throw it }
             return tasks
         }

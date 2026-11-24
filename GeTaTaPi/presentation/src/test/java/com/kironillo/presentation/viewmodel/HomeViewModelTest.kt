@@ -2,6 +2,12 @@ package com.kironillo.presentation.viewmodel
 
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
+import com.kironillo.domain.model.Topic
+import com.kironillo.domain.model.AuthRegistrationResult
+import com.kironillo.domain.repository.AuthRepository
+import com.kironillo.domain.usecase.auth.LogoutUseCase
+import com.kironillo.domain.usecase.task.CreateTaskUseCase
+import com.kironillo.domain.usecase.task.GetTopicsUseCase
 import com.kironillo.domain.repository.TaskRepository
 import com.kironillo.domain.result.DomainError
 import com.kironillo.domain.result.DomainException
@@ -87,13 +93,15 @@ class HomeViewModelTest {
     ): HomeViewModel {
         val repository = FakeTaskRepository(tasks, error)
         val useCase = GetTasksUseCase(repository)
-        return HomeViewModel(useCase)
+        return HomeViewModel(useCase, CreateTaskUseCase(repository), GetTopicsUseCase(repository), LogoutUseCase(FakeAuthRepository()))
     }
 
     private class FakeTaskRepository(
         private val tasks: List<Task>,
         private val error: Exception?,
     ) : TaskRepository {
+        override suspend fun getTopics(): List<Topic> = listOf(Topic("topic-1", "Природа"))
+
         override suspend fun getTasks(): List<Task> {
             error?.let { throw it }
             return tasks
@@ -105,6 +113,14 @@ class HomeViewModelTest {
         ): Task = throw UnsupportedOperationException()
 
         override suspend fun getTaskById(id: String): Task? = throw UnsupportedOperationException()
+    }
+
+    private class FakeAuthRepository : AuthRepository {
+        override suspend fun register(email: String, password: String): AuthRegistrationResult = throw UnsupportedOperationException()
+        override suspend fun login(email: String, password: String): String = throw UnsupportedOperationException()
+        override suspend fun logout() = Unit
+        override suspend fun getUserId(): String? = null
+        override suspend fun restoreSession(): String? = null
     }
 }
 

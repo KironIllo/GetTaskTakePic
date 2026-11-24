@@ -31,6 +31,16 @@ class SettingsDataStoreTest {
         assertFalse(dataStore.isGeolocationEnabled.first())
     }
 
+
+    @Test
+    fun `theme mode defaults to system and persists selection`() = runBlocking {
+        val dataStore = createSettingsDataStore()
+
+        assertTrue(dataStore.themeMode.first() == "SYSTEM")
+        dataStore.setThemeMode("DARK")
+        assertTrue(dataStore.themeMode.first() == "DARK")
+    }
+
     private fun createSettingsDataStore(): SettingsDataStore {
         val directory = createTempDirectory("settings-test").toFile()
         val file = File(directory, "settings.preferences_pb")

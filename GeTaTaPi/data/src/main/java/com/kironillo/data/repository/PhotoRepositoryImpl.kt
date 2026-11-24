@@ -6,6 +6,7 @@ import com.kironillo.data.local.datastore.AuthSessionDataStore
 import com.kironillo.data.remote.StorageApi
 import com.kironillo.data.remote.SubmissionApi
 import com.kironillo.data.remote.dto.CreateSubmissionRequestDto
+import com.kironillo.data.mapper.toDomain
 import com.kironillo.domain.model.Answer
 import com.kironillo.domain.model.SubmissionHistoryItem
 import com.kironillo.domain.model.SubmissionHistoryPage
@@ -98,14 +99,7 @@ class PhotoRepositoryImpl @Inject constructor(
     ): SubmissionResult {
         val response = submissionApi.getSubmission(submissionId)
 
-        return SubmissionResult(
-            id = response.id,
-            status = response.status,
-            passed = response.passed,
-            feedback = response.feedback,
-            confidence = response.confidence,
-            checkedAt = response.checkedAt,
-        )
+        return response.toDomain()
     }
 
     override suspend fun getPhotoUrl(storagePath: String): String {
@@ -134,19 +128,7 @@ class PhotoRepositoryImpl @Inject constructor(
         )
 
         return SubmissionHistoryPage(
-            items = response.data.map { item ->
-                SubmissionHistoryItem(
-                    id = item.id,
-                    taskId = item.taskId,
-                    storagePath = item.storagePath,
-                    status = item.status,
-                    passed = item.passed,
-                    feedback = item.feedback,
-                    confidence = item.confidence,
-                    createdAt = item.createdAt,
-                    checkedAt = item.checkedAt,
-                )
-            },
+            items = response.data.map { it.toDomain() },
             nextCursor = response.page.nextCursor,
         )
     }

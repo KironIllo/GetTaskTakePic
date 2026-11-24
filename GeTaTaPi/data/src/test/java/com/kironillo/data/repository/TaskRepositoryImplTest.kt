@@ -4,6 +4,9 @@ import com.kironillo.data.local.database.TaskDao
 import com.kironillo.data.local.entity.TaskEntity
 import com.kironillo.data.remote.NetworkErrorHandler
 import com.kironillo.data.remote.TaskApi
+import com.kironillo.data.remote.TopicApi
+import com.kironillo.data.remote.dto.TopicDto
+import com.kironillo.data.remote.dto.TopicListResponseDto
 import com.kironillo.data.remote.connectivity.NetworkConnectivity
 import com.kironillo.data.remote.dto.CreateTaskRequestDto
 import com.kironillo.data.remote.dto.TaskDto
@@ -24,6 +27,7 @@ class TaskRepositoryImplTest {
 
     private val repository = TaskRepositoryImpl(
         taskApi = api,
+        topicApi = FakeTopicApi(),
         taskDao = taskDao,
         networkConnectivity = networkConnectivity,
         errorHandler = NetworkErrorHandler(networkConnectivity),
@@ -92,6 +96,12 @@ class TaskRepositoryImplTest {
         val cachedTask = repository.getTaskById(task.id)
 
         assertEquals(task, cachedTask)
+    }
+
+    private class FakeTopicApi : TopicApi {
+        override suspend fun getTopics() = TopicListResponseDto(
+            listOf(TopicDto("topic-uuid", "nature", "Природа", isActive = true, sortOrder = 1)),
+        )
     }
 
     private class FakeTaskApi : TaskApi {

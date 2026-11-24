@@ -2,6 +2,7 @@ package com.kironillo.domain.usecase.task
 
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
+import com.kironillo.domain.model.Topic
 import com.kironillo.domain.repository.TaskRepository
 import com.kironillo.domain.result.DomainError
 import com.kironillo.domain.result.DomainResult
@@ -41,6 +42,8 @@ private class FakeTaskRepository(
     }
 
     override suspend fun getTaskById(id: String): Task? = null
+
+    override suspend fun getTopics(): List<Topic> = emptyList()
 
     override suspend fun getTasks(): List<Task> = emptyList()
 }

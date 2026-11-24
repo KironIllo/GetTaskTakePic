@@ -2,6 +2,7 @@ package com.kironillo.di
 
 import com.kironillo.data.remote.RetrofitClient
 import com.kironillo.data.remote.TaskApi
+import com.kironillo.data.remote.TopicApi
 import com.kironillo.data.remote.auth.TokenProvider
 import dagger.Module
 import dagger.Provides
@@ -67,6 +68,11 @@ object NetworkModule {
     @Singleton
     fun provideTaskApi(retrofit: Retrofit): TaskApi =
         retrofit.create(TaskApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideTopicApi(retrofit: Retrofit): TopicApi =
+        retrofit.create(TopicApi::class.java)
 
     @Provides
     @Singleton

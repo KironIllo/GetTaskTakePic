@@ -21,6 +21,8 @@ import com.kironillo.presentation.ui.history.HistoryScreen
 import com.kironillo.presentation.ui.home.HomeScreen
 import com.kironillo.presentation.ui.task.ReviewScreen
 import com.kironillo.presentation.ui.task.TaskScreen
+import com.kironillo.presentation.ui.profile.ProfileScreen
+import com.kironillo.presentation.ui.settings.SettingsScreen
 import com.kironillo.presentation.viewmodel.AuthUiState
 import com.kironillo.presentation.viewmodel.AuthViewModel
 
@@ -28,6 +30,8 @@ object AppRoutes {
     const val AUTH = "auth"
     const val HOME = "home"
     const val HISTORY = "history"
+    const val PROFILE = "profile"
+    const val SETTINGS = "settings"
 }
 
 @Composable
@@ -89,6 +93,12 @@ private fun MainNavHost(startDestination: String) {
                 onHistory = {
                     navController.navigate(AppRoutes.HISTORY)
                 },
+                onProfile = {
+                    navController.navigate(AppRoutes.PROFILE)
+                },
+                onSettings = {
+                    navController.navigate(AppRoutes.SETTINGS)
+                },
             )
         }
 
@@ -137,6 +147,23 @@ private fun MainNavHost(startDestination: String) {
 
         composable(AppRoutes.HISTORY) {
             HistoryScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(AppRoutes.PROFILE) {
+            ProfileScreen(
+                onBack = { navController.popBackStack() },
+                onSettings = { navController.navigate(AppRoutes.SETTINGS) },
+                onLoggedOut = {
+                    navController.navigate(AppRoutes.AUTH) {
+                        popUpTo(AppRoutes.HOME) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+
+        composable(AppRoutes.SETTINGS) {
+            SettingsScreen(onBack = { navController.popBackStack() })
         }
     }
 }
