@@ -3,21 +3,20 @@ package com.kironillo.data.repository
 import android.content.Context
 import android.net.Uri
 import com.kironillo.data.local.datastore.AuthSessionDataStore
+import com.kironillo.data.mapper.toDomain
 import com.kironillo.data.remote.StorageApi
 import com.kironillo.data.remote.SubmissionApi
 import com.kironillo.data.remote.dto.CreateSubmissionRequestDto
-import com.kironillo.data.mapper.toDomain
 import com.kironillo.domain.model.Answer
-import com.kironillo.domain.model.SubmissionHistoryItem
 import com.kironillo.domain.model.SubmissionHistoryPage
 import com.kironillo.domain.model.SubmissionResult
 import com.kironillo.domain.repository.PhotoRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import javax.inject.Inject
 import javax.inject.Named
+import javax.inject.Singleton
 
 @Singleton
 class PhotoRepositoryImpl @Inject constructor(
@@ -32,6 +31,8 @@ class PhotoRepositoryImpl @Inject constructor(
         taskId: String,
         photoPath: String,
         idempotencyKey: String,
+        latitude: Double?,
+        longitude: Double?,
     ): String {
         val userId = authSessionDataStore.getUserId()
             ?: throw IllegalStateException("Пользователь не авторизован")
@@ -88,6 +89,8 @@ class PhotoRepositoryImpl @Inject constructor(
             request = CreateSubmissionRequestDto(
                 taskId = taskId,
                 storagePath = storagePath,
+                latitude = latitude,
+                longitude = longitude,
             ),
         )
 

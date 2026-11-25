@@ -5,11 +5,11 @@ import com.kironillo.data.local.entity.TaskEntity
 import com.kironillo.data.remote.NetworkErrorHandler
 import com.kironillo.data.remote.TaskApi
 import com.kironillo.data.remote.TopicApi
-import com.kironillo.data.remote.dto.TopicDto
-import com.kironillo.data.remote.dto.TopicListResponseDto
 import com.kironillo.data.remote.connectivity.NetworkConnectivity
 import com.kironillo.data.remote.dto.CreateTaskRequestDto
 import com.kironillo.data.remote.dto.TaskDto
+import com.kironillo.data.remote.dto.TopicDto
+import com.kironillo.data.remote.dto.TopicListResponseDto
 import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.domain.result.DomainError
 import com.kironillo.domain.result.DomainException

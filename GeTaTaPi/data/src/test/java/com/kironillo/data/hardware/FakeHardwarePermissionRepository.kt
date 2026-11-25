@@ -20,4 +20,8 @@ class FakeHardwarePermissionRepository : HardwarePermissionRepository {
     override fun isPermanentlyDenied(type: PermissionType): Boolean {
         return getPermissionStatus(type) == PermissionStatus.PERMANENTLY_DENIED
     }
+
+    override suspend fun markAsRequested(type: PermissionType) {}
+
+    override fun wasRequestedBefore(type: PermissionType) = false
 }

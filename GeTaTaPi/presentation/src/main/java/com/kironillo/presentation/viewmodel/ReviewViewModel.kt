@@ -2,6 +2,7 @@ package com.kironillo.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kironillo.domain.usecase.photo.GetCurrentLocationUseCase
 import com.kironillo.domain.usecase.photo.GetSubmissionStatusUseCase
 import com.kironillo.domain.usecase.photo.SubmitPhotoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,7 @@ class ReviewViewModel
     constructor(
         private val submitPhotoUseCase: SubmitPhotoUseCase,
         private val getSubmissionStatusUseCase: GetSubmissionStatusUseCase,
+        private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     ) : ViewModel() {
         private var pendingIdempotencyKey: String? = null
         private var pendingRequestIdentity: String? = null
@@ -54,13 +56,15 @@ class ReviewViewModel
 
             viewModelScope.launch {
                 _uiState.value = ReviewUiState.Loading
-
+                val geoPoint = runCatching { getCurrentLocationUseCase() }.getOrNull()
                 try {
                     val submissionId =
                         submitPhotoUseCase(
                             taskId = taskId,
                             photoPath = photoPath,
                             idempotencyKey = idempotencyKey,
+                            latitude = geoPoint?.latitude,
+                            longitude = geoPoint?.longitude,
                         )
                     pollSubmissionStatus(submissionId)
                 } catch (exception: Exception) {

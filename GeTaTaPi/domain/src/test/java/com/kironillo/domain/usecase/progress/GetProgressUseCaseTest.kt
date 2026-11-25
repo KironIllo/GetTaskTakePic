@@ -1,14 +1,9 @@
 package com.kironillo.domain.usecase.progress
 
 import com.kironillo.domain.model.Progress
-import com.kironillo.domain.model.Statistics
-import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.domain.repository.ProgressRepository
-import com.kironillo.domain.repository.StatisticsRepository
 import com.kironillo.domain.result.DomainError
 import com.kironillo.domain.result.DomainResult
-import com.kironillo.domain.usecase.statistics.GetStatisticsUseCase
-import com.kironillo.domain.usecase.statistics.StatisticsData
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking

@@ -7,4 +7,6 @@ data class SubmissionResult(
     val feedback: String?,
     val confidence: Double?,
     val checkedAt: String?,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 )

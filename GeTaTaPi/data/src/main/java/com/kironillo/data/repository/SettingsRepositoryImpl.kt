@@ -2,9 +2,9 @@ package com.kironillo.data.repository
 
 import com.kironillo.data.local.datastore.SettingsDataStore
 import com.kironillo.domain.repository.SettingsRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
 
 @Singleton
 class SettingsRepositoryImpl @Inject constructor(

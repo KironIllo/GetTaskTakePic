@@ -2,9 +2,9 @@ package com.kironillo.data.remote.connectivity
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Context.CONNECTIVITY_SERVICE
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.content.Context.CONNECTIVITY_SERVICE
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 

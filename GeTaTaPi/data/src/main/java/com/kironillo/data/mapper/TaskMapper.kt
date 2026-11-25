@@ -1,9 +1,9 @@
 package com.kironillo.data.mapper
 
+import com.kironillo.data.local.entity.TaskEntity
 import com.kironillo.data.remote.dto.TaskDto
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
-import com.kironillo.data.local.entity.TaskEntity
 
 fun TaskDto.toDomain(): Task {
     return Task(

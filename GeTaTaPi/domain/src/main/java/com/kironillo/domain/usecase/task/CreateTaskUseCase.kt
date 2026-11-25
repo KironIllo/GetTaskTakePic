@@ -4,8 +4,8 @@ import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.domain.repository.TaskRepository
 import com.kironillo.domain.result.DomainError
-import com.kironillo.domain.result.DomainResult
 import com.kironillo.domain.result.DomainException
+import com.kironillo.domain.result.DomainResult
 
 class CreateTaskUseCase(
     private val taskRepository: TaskRepository,

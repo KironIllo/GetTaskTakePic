@@ -360,6 +360,29 @@ Deno.serve(async (req: Request) => {
         ]);
       }
 
+      const hasLatitude = body.latitude !== undefined && body.latitude !== null;
+      const hasLongitude = body.longitude !== undefined && body.longitude !== null;
+
+      if (hasLatitude !== hasLongitude) {
+        return fail(422, "VALIDATION_ERROR", "latitude и longitude должны быть переданы вместе.", [
+          { field: "latitude", reason: "Required if longitude is present" },
+          { field: "longitude", reason: "Required if latitude is present" },
+        ]);
+      }
+
+      if (hasLatitude) {
+        if (typeof body.latitude !== "number" || body.latitude < -90 || body.latitude > 90) {
+          return fail(422, "VALIDATION_ERROR", "latitude должен быть числом в диапазоне [-90, 90].", [
+            { field: "latitude", reason: "Expected number in [-90, 90]" },
+          ]);
+        }
+        if (typeof body.longitude !== "number" || body.longitude < -180 || body.longitude > 180) {
+          return fail(422, "VALIDATION_ERROR", "longitude должен быть числом в диапазоне [-180, 180].", [
+            { field: "longitude", reason: "Expected number in [-180, 180]" },
+          ]);
+        }
+      }
+
       const pathParts = body.storagePath.split("/");
       const fileName = pathParts.pop()!;
       const folderPath = pathParts.join("/");
@@ -389,7 +412,12 @@ Deno.serve(async (req: Request) => {
       if (!task) return fail(404, "NOT_FOUND", "Task not found.");
 
       const { data: submission, error: insertError } = await supabase.from("submissions").insert({
-        user_id: user.id, task_id: body.taskId, storage_path: body.storagePath, status: "queued",
+      user_id: user.id,
+      task_id: body.taskId,
+      storage_path: body.storagePath,
+      status: "queued",
+      latitude: hasLatitude ? body.latitude : null,
+      longitude: hasLongitude ? body.longitude : null,
       }).select("id,task_id,status,created_at").single();
       if (insertError) throw insertError;
 
@@ -427,7 +455,7 @@ Deno.serve(async (req: Request) => {
       const cursor = url.searchParams.get("cursor");
 
       let query = supabase.from("submissions")
-        .select("id,task_id,storage_path,status,passed,ai_feedback,confidence,created_at,checked_at")
+        .select("id,task_id,storage_path,status,passed,ai_feedback,confidence,created_at,checked_at,latitude,longitude")
         .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(limit + 1);
 
       if (cursor) {
@@ -454,7 +482,7 @@ Deno.serve(async (req: Request) => {
       return json({
         data: pageRows.map((s) => ({
           id: s.id, taskId: s.task_id, storagePath: s.storage_path, status: s.status, passed: s.passed,
-          feedback: s.ai_feedback, confidence: s.confidence, createdAt: s.created_at, checkedAt: s.checked_at,
+          feedback: s.ai_feedback, confidence: s.confidence, createdAt: s.created_at, checkedAt: s.checked_at, latitude: s.latitude, longitude: s.longitude,
         })),
         page: { limit, nextCursor },
       });
@@ -463,7 +491,7 @@ Deno.serve(async (req: Request) => {
     const submissionId = getId(path, "submissions");
     if (method === "GET" && submissionId) {
       const { data, error } = await supabase.from("submissions")
-        .select("id,task_id,status,passed,ai_feedback,confidence,created_at,checked_at")
+        .select("id,task_id,status,passed,ai_feedback,confidence,created_at,checked_at,latitude,longitude")
         .eq("id", submissionId).maybeSingle();
       if (error) throw error;
       if (!data) return fail(404, "NOT_FOUND", "Submission not found.");
@@ -471,6 +499,7 @@ Deno.serve(async (req: Request) => {
         id: data.id, taskId: data.task_id, status: data.status, passed: data.passed,
         feedback: data.ai_feedback, confidence: data.confidence,
         createdAt: data.created_at, checkedAt: data.checked_at,
+        latitude: data.latitude, longitude: data.longitude,
       });
     }
 

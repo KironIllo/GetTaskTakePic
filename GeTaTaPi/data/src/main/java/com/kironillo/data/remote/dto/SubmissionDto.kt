@@ -3,6 +3,8 @@ package com.kironillo.data.remote.dto
 data class CreateSubmissionRequestDto(
     val taskId: String,
     val storagePath: String,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 )
 
 data class SubmissionResponseDto(
@@ -28,6 +30,8 @@ data class SubmissionHistoryItemDto(
     val confidence: Double?,
     val createdAt: String,
     val checkedAt: String?,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 )
 
 data class SubmissionHistoryPageDto(
@@ -45,4 +49,6 @@ data class SubmissionStatusDto(
     val confidence: Double?,
     val createdAt: String,
     val checkedAt: String?,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 )

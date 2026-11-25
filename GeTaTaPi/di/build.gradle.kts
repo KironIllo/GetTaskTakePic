@@ -77,4 +77,6 @@ dependencies {
 
     implementation(libs.datastore.preferences)
     implementation(libs.androidx.datastore.preferences.core)
+
+    implementation(libs.okhttp.logging)
 }

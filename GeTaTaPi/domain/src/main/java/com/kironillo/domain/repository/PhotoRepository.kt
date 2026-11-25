@@ -20,6 +20,8 @@ interface PhotoRepository {
         taskId: String,
         photoPath: String,
         idempotencyKey: String,
+        latitude: Double? = null,
+        longitude: Double? = null,
     ): String
 
     suspend fun getSubmissionStatus(

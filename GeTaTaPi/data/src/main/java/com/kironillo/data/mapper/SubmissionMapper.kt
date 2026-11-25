@@ -12,6 +12,8 @@ fun SubmissionStatusDto.toDomain(): SubmissionResult = SubmissionResult(
     feedback = feedback,
     confidence = confidence,
     checkedAt = checkedAt,
+    latitude = latitude,
+    longitude = longitude
 )
 
 fun SubmissionHistoryItemDto.toDomain(): SubmissionHistoryItem = SubmissionHistoryItem(

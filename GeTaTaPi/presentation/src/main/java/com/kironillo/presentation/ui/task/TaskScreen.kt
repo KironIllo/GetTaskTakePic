@@ -23,9 +23,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +35,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.presentation.ui.components.AppCard
@@ -47,8 +52,23 @@ fun TaskScreen(
     onBack: () -> Unit,
     onPhotoSelected: (Uri) -> Unit,
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var permissionTick by rememberSaveable { mutableStateOf(0) }
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) permissionTick++
+            }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     val context = LocalContext.current
-    var photoError by remember { mutableStateOf<String?>(null) }
+    val hasCamera =
+        remember {
+            context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+        }
+    var photoError by rememberSaveable { mutableStateOf<String?>(null) }
 
     val cameraLauncher =
         rememberLauncherForActivityResult(
@@ -73,7 +93,7 @@ fun TaskScreen(
             }
         }
 
-    var showCameraRationale by remember { mutableStateOf(false) }
+    var showCameraRationale by rememberSaveable { mutableStateOf(false) }
 
     val cameraPermissionLauncher =
         rememberLauncherForActivityResult(
@@ -132,7 +152,8 @@ fun TaskScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             PrimaryButton(
-                text = "Сделать фото",
+                text = if (hasCamera) "Сделать фото" else "Камера недоступна",
+                enabled = hasCamera,
                 onClick = {
                     val hasPermission =
                         ContextCompat.checkSelfPermission(

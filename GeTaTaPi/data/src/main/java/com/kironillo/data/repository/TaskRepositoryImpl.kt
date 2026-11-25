@@ -3,11 +3,11 @@ package com.kironillo.data.repository
 import com.kironillo.data.local.database.TaskDao
 import com.kironillo.data.mapper.toDomain
 import com.kironillo.data.mapper.toEntity
-import com.kironillo.data.remote.TaskApi
 import com.kironillo.data.remote.NetworkErrorHandler
+import com.kironillo.data.remote.TaskApi
+import com.kironillo.data.remote.TopicApi
 import com.kironillo.data.remote.connectivity.NetworkConnectivity
 import com.kironillo.data.remote.dto.CreateTaskRequestDto
-import com.kironillo.data.remote.TopicApi
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.domain.model.Topic

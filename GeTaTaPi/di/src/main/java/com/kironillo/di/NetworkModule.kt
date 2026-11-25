@@ -1,33 +1,34 @@
 package com.kironillo.di
 
-import com.kironillo.data.remote.RetrofitClient
-import com.kironillo.data.remote.TaskApi
-import com.kironillo.data.remote.TopicApi
-import com.kironillo.data.remote.auth.TokenProvider
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import retrofit2.Retrofit
-import javax.inject.Singleton
 import com.kironillo.data.remote.NetworkErrorHandler
+import com.kironillo.data.remote.RetrofitClient
 import com.kironillo.data.remote.StorageApi
 import com.kironillo.data.remote.SubmissionApi
+import com.kironillo.data.remote.TaskApi
+import com.kironillo.data.remote.TopicApi
 import com.kironillo.data.remote.auth.AuthApi
 import com.kironillo.data.remote.auth.AuthInterceptor
 import com.kironillo.data.remote.auth.DataStoreTokenProvider
 import com.kironillo.data.remote.auth.SupabaseAuthenticator
 import com.kironillo.data.remote.auth.SupabaseKeyInterceptor
+import com.kironillo.data.remote.auth.TokenProvider
 import com.kironillo.data.remote.connectivity.AndroidNetworkConnectivity
 import com.kironillo.data.remote.connectivity.NetworkConnectivity
 import com.kironillo.data.repository.PhotoRepositoryImpl
 import com.kironillo.domain.repository.PhotoRepository
 import com.kironillo.domain.usecase.photo.GetSubmissionStatusUseCase
 import com.kironillo.domain.usecase.photo.SubmitPhotoUseCase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import okhttp3.Authenticator
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -96,12 +97,14 @@ object NetworkModule {
     fun provideStorageRetrofit(
         tokenProvider: TokenProvider,
         authenticator: Authenticator,
+        loggingInterceptor: HttpLoggingInterceptor
     ): Retrofit {
         val client = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(tokenProvider))
             .addInterceptor(
                 SupabaseKeyInterceptor(BuildConfig.SUPABASE_ANON_KEY),
             )
+            .addInterceptor(loggingInterceptor)
             .authenticator(authenticator)
             .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
             .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
@@ -132,6 +135,20 @@ object NetworkModule {
     fun provideNetworkErrorHandler(
         connectivity: NetworkConnectivity,
     ): NetworkErrorHandler = NetworkErrorHandler(connectivity)
+
+    @Provides
+    @Singleton
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor =
+        HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+        // Скрываем чувствительные данные (токены) из логов
+        redactHeader("Authorization")
+        redactHeader("Cookie")
+    }
 
     @Provides
     @Singleton

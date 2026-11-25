@@ -9,11 +9,15 @@ class SubmitPhotoUseCase(
         taskId: String,
         photoPath: String,
         idempotencyKey: String,
+        latitude: Double? = null,
+        longitude: Double? = null,
     ): String {
         return photoRepository.submitPhoto(
             taskId = taskId,
             photoPath = photoPath,
             idempotencyKey = idempotencyKey,
+            latitude = latitude,
+            longitude = longitude,
         )
     }
 }

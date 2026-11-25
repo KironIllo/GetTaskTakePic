@@ -1,10 +1,10 @@
 package com.kironillo.data.remote.auth
 
 import com.kironillo.data.local.datastore.AuthSessionDataStore
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 class DataStoreTokenProvider @Inject constructor(
     private val sessionDataStore: AuthSessionDataStore,

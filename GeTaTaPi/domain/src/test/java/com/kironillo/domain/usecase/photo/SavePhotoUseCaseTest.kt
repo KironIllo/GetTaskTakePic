@@ -40,7 +40,7 @@ class SavePhotoUseCaseTest {
         override suspend fun getPhotoUrl(storagePath: String) = ""
         override suspend fun getSubmissionHistory(limit: Int,cursor: String?) = SubmissionHistoryPage(emptyList(), null)
         override suspend fun getSubmissionStatus(submissionId: String) = SubmissionResult("", "", null, null,null,null)
-        override suspend fun submitPhoto(taskId: String,photoPath: String,idempotencyKey: String) = ""
+        override suspend fun submitPhoto(taskId: String,photoPath: String,idempotencyKey: String, latitude: Double?, longitude: Double?) = ""
     }
 }
 

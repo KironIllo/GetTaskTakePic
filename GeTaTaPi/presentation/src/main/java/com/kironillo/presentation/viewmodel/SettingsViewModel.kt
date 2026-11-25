@@ -2,6 +2,10 @@ package com.kironillo.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kironillo.domain.hardware.LocationProvider
+import com.kironillo.domain.model.PermissionStatus
+import com.kironillo.domain.model.PermissionType
+import com.kironillo.domain.repository.HardwarePermissionRepository
 import com.kironillo.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +26,8 @@ class SettingsViewModel
     @Inject
     constructor(
         private val settingsRepository: SettingsRepository,
+        private val permissionRepository: HardwarePermissionRepository,
+        private val locationProvider: LocationProvider,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(SettingsUiState())
         val uiState = _uiState.asStateFlow()
@@ -57,6 +63,20 @@ class SettingsViewModel
             viewModelScope.launch {
                 settingsRepository.setThemeMode(mode)
                 _uiState.value = _uiState.value.copy(themeMode = mode)
+            }
+        }
+
+        fun canUseGeolocation(): Boolean {
+            val permission = permissionRepository.getPermissionStatus(PermissionType.LOCATION)
+            return permission == PermissionStatus.GRANTED && locationProvider.isSystemLocationEnabled()
+        }
+
+        fun geolocationUnavailableReason(): String? {
+            val permission = permissionRepository.getPermissionStatus(PermissionType.LOCATION)
+            return when {
+                permission != PermissionStatus.GRANTED -> "Нужно разрешение на местоположение"
+                !locationProvider.isSystemLocationEnabled() -> "Включите GPS в настройках телефона"
+                else -> null
             }
         }
     }

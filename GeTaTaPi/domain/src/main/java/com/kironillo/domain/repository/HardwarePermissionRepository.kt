@@ -7,4 +7,6 @@ interface HardwarePermissionRepository {
     fun getPermissionStatus(type: PermissionType): PermissionStatus
     fun getRationale(type: PermissionType): String
     fun isPermanentlyDenied(type: PermissionType): Boolean
+    suspend fun markAsRequested(type: PermissionType)
+    fun wasRequestedBefore(type: PermissionType): Boolean
 }

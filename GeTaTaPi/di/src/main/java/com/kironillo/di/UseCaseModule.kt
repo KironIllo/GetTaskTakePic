@@ -1,9 +1,9 @@
 package com.kironillo.di
 
 import com.kironillo.domain.repository.TaskRepository
+import com.kironillo.domain.usecase.task.CreateTaskUseCase
 import com.kironillo.domain.usecase.task.GetTasksUseCase
 import com.kironillo.domain.usecase.task.GetTopicsUseCase
-import com.kironillo.domain.usecase.task.CreateTaskUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
