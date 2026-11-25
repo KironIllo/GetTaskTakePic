@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -28,15 +29,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.material3.ExperimentalMaterial3Api
-import com.kironillo.presentation.viewmodel.SettingsViewModel
 import com.kironillo.presentation.ui.components.AppCard
+import com.kironillo.presentation.viewmodel.SettingsViewModel
 
 private val themeOptions = listOf("SYSTEM" to "Системная", "LIGHT" to "Светлая", "DARK" to "Тёмная")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(
+    onBack: () -> Unit,
+    onNavigateToPermissions: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
     val state by viewModel.uiState.collectAsState()
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -57,10 +61,32 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 AppCard {
-                    SettingSwitch("Геолокация", "Для сохранения картинок на карте", state.geolocationEnabled, viewModel::setGeolocationEnabled)
+                    SettingSwitch(
+                        "Геолокация",
+                        "Для сохранения картинок на карте",
+                        state.geolocationEnabled,
+                        viewModel::setGeolocationEnabled,
+                    )
                 }
                 AppCard {
-                    SettingSwitch("Уведомления", "Сохранить предпочтение уведомлений", state.notificationsEnabled, viewModel::setNotificationsEnabled)
+                    Row(
+                        Modifier.fillMaxWidth().clickable { onNavigateToPermissions() }.padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Разрешения", style = MaterialTheme.typography.titleMedium)
+                            Text("Управление доступом к камере и геолокации", style = MaterialTheme.typography.bodySmall)
+                        }
+                        Text("›", style = MaterialTheme.typography.titleLarge)
+                    }
+                }
+                AppCard {
+                    SettingSwitch(
+                        "Уведомления",
+                        "Сохранить предпочтение уведомлений",
+                        state.notificationsEnabled,
+                        viewModel::setNotificationsEnabled,
+                    )
                 }
                 AppCard {
                     var expanded by remember { mutableStateOf(false) }
@@ -79,7 +105,10 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
                             themeOptions.forEach { (value, title) ->
                                 DropdownMenuItem(
                                     text = { Text(title) },
-                                    onClick = { viewModel.setThemeMode(value); expanded = false },
+                                    onClick = {
+                                        viewModel.setThemeMode(value)
+                                        expanded = false
+                                    },
                                 )
                             }
                         }
@@ -96,7 +125,12 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
 }
 
 @Composable
-private fun SettingSwitch(title: String, description: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+private fun SettingSwitch(
+    title: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleMedium)

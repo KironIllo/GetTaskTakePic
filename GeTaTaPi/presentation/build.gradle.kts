@@ -57,4 +57,6 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     implementation(libs.retrofit)
+
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 }

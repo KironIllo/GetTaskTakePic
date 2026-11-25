@@ -48,6 +48,8 @@ dependencies {
 
     androidTestImplementation(libs.androidx.core)
     androidTestImplementation(libs.androidx.runner)
+
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 }
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")

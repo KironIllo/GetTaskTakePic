@@ -19,10 +19,11 @@ import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.presentation.ui.auth.AuthScreen
 import com.kironillo.presentation.ui.history.HistoryScreen
 import com.kironillo.presentation.ui.home.HomeScreen
-import com.kironillo.presentation.ui.task.ReviewScreen
-import com.kironillo.presentation.ui.task.TaskScreen
+import com.kironillo.presentation.ui.permissions.PermissionsScreen
 import com.kironillo.presentation.ui.profile.ProfileScreen
 import com.kironillo.presentation.ui.settings.SettingsScreen
+import com.kironillo.presentation.ui.task.ReviewScreen
+import com.kironillo.presentation.ui.task.TaskScreen
 import com.kironillo.presentation.viewmodel.AuthUiState
 import com.kironillo.presentation.viewmodel.AuthViewModel
 
@@ -32,6 +33,7 @@ object AppRoutes {
     const val HISTORY = "history"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
+    const val PERMISSIONS = "permissions"
 }
 
 @Composable
@@ -163,7 +165,18 @@ private fun MainNavHost(startDestination: String) {
         }
 
         composable(AppRoutes.SETTINGS) {
-            SettingsScreen(onBack = { navController.popBackStack() })
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                // Передаем колбэк для перехода на экран разрешений
+                onNavigateToPermissions = { navController.navigate(AppRoutes.PERMISSIONS) },
+            )
+        }
+
+        // <-- ДОБАВЛЕН НОВЫЙ ЭКРАН РАЗРЕШЕНИЙ
+        composable(AppRoutes.PERMISSIONS) {
+            PermissionsScreen(
+                onBack = { navController.popBackStack() },
+            )
         }
     }
 }

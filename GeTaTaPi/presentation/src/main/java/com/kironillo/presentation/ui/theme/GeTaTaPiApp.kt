@@ -15,11 +15,12 @@ import com.kironillo.presentation.viewmodel.ThemeViewModel
 @Composable
 fun GeTaTaPiApp(themeViewModel: ThemeViewModel = hiltViewModel()) {
     val mode by themeViewModel.themeMode.collectAsState()
-    val dark = when (mode) {
-        "DARK" -> true
-        "LIGHT" -> false
-        else -> isSystemInDarkTheme()
-    }
+    val dark =
+        when (mode) {
+            "DARK" -> true
+            "LIGHT" -> false
+            else -> isSystemInDarkTheme()
+        }
     val view = LocalView.current
     SideEffect {
         val activity = view.context as? Activity

@@ -1,17 +1,17 @@
 package com.kironillo.presentation.viewmodel
 
+import com.kironillo.domain.model.AuthRegistrationResult
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.domain.model.Topic
-import com.kironillo.domain.model.AuthRegistrationResult
 import com.kironillo.domain.repository.AuthRepository
-import com.kironillo.domain.usecase.auth.LogoutUseCase
-import com.kironillo.domain.usecase.task.CreateTaskUseCase
-import com.kironillo.domain.usecase.task.GetTopicsUseCase
 import com.kironillo.domain.repository.TaskRepository
 import com.kironillo.domain.result.DomainError
 import com.kironillo.domain.result.DomainException
+import com.kironillo.domain.usecase.auth.LogoutUseCase
+import com.kironillo.domain.usecase.task.CreateTaskUseCase
 import com.kironillo.domain.usecase.task.GetTasksUseCase
+import com.kironillo.domain.usecase.task.GetTopicsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -81,7 +81,7 @@ class HomeViewModelTest {
 
             assertEquals(
                 HomeUiState.Error(
-                    "Не удалось загрузить задачи. Попробуйте ещё раз.",
+                    "Не удалось загрузить задания. Попробуйте ещё раз.",
                 ),
                 viewModel.uiState.value,
             )
@@ -116,10 +116,20 @@ class HomeViewModelTest {
     }
 
     private class FakeAuthRepository : AuthRepository {
-        override suspend fun register(email: String, password: String): AuthRegistrationResult = throw UnsupportedOperationException()
-        override suspend fun login(email: String, password: String): String = throw UnsupportedOperationException()
+        override suspend fun register(
+            email: String,
+            password: String,
+        ): AuthRegistrationResult = throw UnsupportedOperationException()
+
+        override suspend fun login(
+            email: String,
+            password: String,
+        ): String = throw UnsupportedOperationException()
+
         override suspend fun logout() = Unit
+
         override suspend fun getUserId(): String? = null
+
         override suspend fun restoreSession(): String? = null
     }
 }

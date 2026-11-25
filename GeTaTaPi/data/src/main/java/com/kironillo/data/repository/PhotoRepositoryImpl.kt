@@ -21,11 +21,11 @@ import javax.inject.Named
 
 @Singleton
 class PhotoRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val authSessionDataStore: AuthSessionDataStore,
     private val storageApi: StorageApi,
     private val submissionApi: SubmissionApi,
-    @Named("supabaseUrl") private val supabaseUrl: String,
+    @param:Named("supabaseUrl") private val supabaseUrl: String,
 ) : PhotoRepository {
 
     override suspend fun submitPhoto(

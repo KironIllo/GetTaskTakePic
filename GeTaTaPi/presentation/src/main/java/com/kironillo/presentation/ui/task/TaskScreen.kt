@@ -1,7 +1,10 @@
 package com.kironillo.presentation.ui.task
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.presentation.ui.components.AppCard
@@ -66,6 +70,19 @@ fun TaskScreen(
                     .onFailure {
                         photoError = it.message ?: "Не удалось сохранить фотографию"
                     }
+            }
+        }
+
+    var showCameraRationale by remember { mutableStateOf(false) }
+
+    val cameraPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            if (isGranted) {
+                cameraLauncher.launch(null)
+            } else {
+                showCameraRationale = true
             }
         }
 
@@ -116,7 +133,19 @@ fun TaskScreen(
 
             PrimaryButton(
                 text = "Сделать фото",
-                onClick = { cameraLauncher.launch(null) },
+                onClick = {
+                    val hasPermission =
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            android.Manifest.permission.CAMERA,
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                    if (hasPermission) {
+                        cameraLauncher.launch(null)
+                    } else {
+                        cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    }
+                },
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -146,6 +175,27 @@ fun TaskScreen(
                 }
             },
         )
+        if (showCameraRationale) {
+            AlertDialog(
+                onDismissRequest = { showCameraRationale = false },
+                title = { Text("Разрешите доступ к камере") },
+                text = { Text("Для того, чтобы делать фотографии, нужна камера, прикинь") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showCameraRationale = false
+                        // Открываем настройки, если отклонили
+                        val intent =
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                        context.startActivity(intent)
+                    }) { Text("В настройки") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showCameraRationale = false }) { Text("Отмена") }
+                },
+            )
+        }
     }
 }
 

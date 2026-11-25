@@ -2,22 +2,42 @@ package com.kironillo.presentation.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
 import com.kironillo.presentation.viewmodel.HomeUiState
@@ -75,14 +95,22 @@ fun HomeScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextButton(onClick = onProfile) { Text("Профиль") }
                     TextButton(onClick = { viewModel.logout(onLogout) }, enabled = !loggingOut) {
-                        if (loggingOut) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
-                        else Text("Выйти", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (loggingOut) {
+                            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                        } else {
+                            Text("Выйти", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
             }
             Column(Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 18.dp)) {
                 Row(
-                    Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp)).padding(vertical = 16.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            MaterialTheme.colorScheme.surface,
+                            RoundedCornerShape(16.dp),
+                        ).padding(vertical = 16.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -90,7 +118,12 @@ fun HomeScreen(
                     Spacer(Modifier.width(8.dp))
                     Text("Количество дней", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Text("Выбор Темы", Modifier.padding(top = 34.dp, bottom = 18.dp), fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground)
+                Text(
+                    "Выбор Темы",
+                    Modifier.padding(top = 34.dp, bottom = 18.dp),
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
                 if (topics.isEmpty()) {
                     Text("Загружаем темы…", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(8.dp))
                 } else {
@@ -99,17 +132,34 @@ fun HomeScreen(
                             rowTopics.forEach { topic ->
                                 val selected = topic.id == selectedTopic
                                 Box(
-                                    Modifier.weight(1f).height(76.dp).padding(bottom = 8.dp)
-                                        .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
-                                        .clickable { viewModel.selectTopic(topic.id) },
+                                    Modifier
+                                        .weight(1f)
+                                        .height(76.dp)
+                                        .padding(bottom = 8.dp)
+                                        .background(
+                                            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                            RoundedCornerShape(12.dp),
+                                        ).clickable { viewModel.selectTopic(topic.id) },
                                     contentAlignment = Alignment.Center,
-                                ) { Text(topic.title, color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface, fontSize = 14.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal) }
+                                ) {
+                                    Text(
+                                        topic.title,
+                                        color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                                        fontSize = 14.sp,
+                                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                    )
+                                }
                             }
                             if (rowTopics.size == 1) Spacer(Modifier.weight(1f))
                         }
                     }
                 }
-                Text("Сложность", Modifier.padding(start = 6.dp, top = 16.dp, bottom = 16.dp), fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground)
+                Text(
+                    "Сложность",
+                    Modifier.padding(start = 6.dp, top = 16.dp, bottom = 16.dp),
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     DifficultyChip("Низкая", TaskDifficulty.EASY, difficulty, Modifier.weight(1f), viewModel::selectDifficulty)
                     DifficultyChip("Средняя", TaskDifficulty.MEDIUM, difficulty, Modifier.weight(1f), viewModel::selectDifficulty)
@@ -122,8 +172,11 @@ fun HomeScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 ) {
-                    if (creating) CircularProgressIndicator(Modifier.size(22.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
-                    else Text("Получить задание", fontSize = 16.sp)
+                    if (creating) {
+                        CircularProgressIndicator(Modifier.size(22.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                    } else {
+                        Text("Получить задание", fontSize = 16.sp)
+                    }
                 }
                 createError?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(bottom = 8.dp)) }
                 logoutError?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(bottom = 8.dp)) }
@@ -132,7 +185,12 @@ fun HomeScreen(
                 when (val state = uiState) {
                     HomeUiState.Loading -> LinearProgressIndicator(Modifier.fillMaxWidth())
                     is HomeUiState.Content -> {
-                        Text("Мои задания", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 12.dp, bottom = 8.dp))
+                        Text(
+                            "Мои задания",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
+                        )
                         state.tasks.forEach { task ->
                             Card(Modifier.fillMaxWidth().padding(bottom = 8.dp).clickable { onTaskSelected(task) }) {
                                 Column(Modifier.padding(14.dp)) {
@@ -160,26 +218,69 @@ private fun DifficultyChip(
     onSelect: (TaskDifficulty) -> Unit,
 ) {
     Box(
-        modifier.height(52.dp).background(if (value == selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(16.dp)).clickable { onSelect(value) },
+        modifier
+            .height(52.dp)
+            .background(
+                if (value ==
+                    selected
+                ) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant
+                },
+                RoundedCornerShape(16.dp),
+            ).clickable { onSelect(value) },
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = if (value == selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp, fontWeight = if (value == selected) FontWeight.Bold else FontWeight.Normal)
+        Text(
+            label,
+            color =
+                if (value ==
+                    selected
+                ) {
+                    MaterialTheme.colorScheme.onPrimary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            fontSize = 13.sp,
+            fontWeight =
+                if (value ==
+                    selected
+                ) {
+                    FontWeight.Bold
+                } else {
+                    FontWeight.Normal
+                },
+        )
     }
 }
 
 @Composable
-private fun BottomItem(label: String, selected: Boolean, onClick: () -> Unit, enabled: Boolean = true) {
+private fun BottomItem(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+) {
     Text(
         label,
         modifier = Modifier.clickable(enabled = enabled, onClick = onClick).padding(horizontal = 4.dp, vertical = 4.dp),
-        color = if (!enabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f) else if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        color =
+            if (!enabled) {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+            } else if (selected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
         fontSize = 14.sp,
         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
     )
 }
 
-private fun difficultyLabel(value: TaskDifficulty): String = when (value) {
-    TaskDifficulty.EASY -> "Низкая"
-    TaskDifficulty.MEDIUM -> "Средняя"
-    TaskDifficulty.HARD -> "Высокая"
-}
+private fun difficultyLabel(value: TaskDifficulty): String =
+    when (value) {
+        TaskDifficulty.EASY -> "Низкая"
+        TaskDifficulty.MEDIUM -> "Средняя"
+        TaskDifficulty.HARD -> "Высокая"
+    }

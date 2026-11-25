@@ -159,12 +159,13 @@ fun AuthScreen(
             Button(
                 onClick = {
                     validationError =
-                        AuthFormValidator.validate(
-                            email = email,
-                            password = password,
-                            confirmPassword = confirmPassword,
-                            isRegistration = isRegister,
-                        ).firstError
+                        AuthFormValidator
+                            .validate(
+                                email = email,
+                                password = password,
+                                confirmPassword = confirmPassword,
+                                isRegistration = isRegister,
+                            ).firstError
                     if (validationError == null) {
                         if (isRegister) {
                             viewModel.register(email, password)
