@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.kironillo.domain.usecase.photo.GetCurrentLocationUseCase
 import com.kironillo.domain.usecase.photo.GetSubmissionStatusUseCase
 import com.kironillo.domain.usecase.photo.SubmitPhotoUseCase
+import com.kironillo.presentation.util.toUserMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,10 +69,12 @@ class ReviewViewModel
                             longitude = geoPoint?.longitude,
                         )
                     pollSubmissionStatus(submissionId)
+                } catch (exception: CancellationException) {
+                    throw exception
                 } catch (exception: Exception) {
                     _uiState.value =
                         ReviewUiState.Error(
-                            exception.message ?: "Не удалось отправить фотографию",
+                            exception.toUserMessage("Не удалось отправить фотографию"),
                         )
                 }
             }
@@ -108,10 +112,12 @@ class ReviewViewModel
                                 }
                             }
                         }
+                    } catch (exception: CancellationException) {
+                        throw exception
                     } catch (exception: Exception) {
                         _uiState.value =
                             ReviewUiState.Error(
-                                exception.message ?: "Не удалось получить результат проверки",
+                                exception.toUserMessage("Не удалось получить результат проверки"),
                             )
                     }
                 }

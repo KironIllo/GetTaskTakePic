@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,6 +46,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kironillo.domain.model.SubmissionHistoryItem
 import com.kironillo.presentation.history.HistoryViewModel
+import com.kironillo.presentation.ui.components.ErrorState
+import com.kironillo.presentation.ui.components.InlineError
 import com.kironillo.presentation.viewmodel.HistoryUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -95,16 +96,11 @@ fun HistoryScreen(
                 }
 
                 is HistoryUiState.Error -> {
-                    Column(
+                    ErrorState(
+                        message = current.message,
+                        onRetry = viewModel::loadHistory,
                         modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(current.message)
-
-                        Button(onClick = viewModel::loadHistory) {
-                            Text("Повторить")
-                        }
-                    }
+                    )
                 }
 
                 is HistoryUiState.Success -> {
@@ -200,21 +196,12 @@ fun HistoryScreen(
 
                             current.loadMoreError?.let { error ->
                                 item {
-                                    Column(
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .padding(16.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        Text(error)
-
-                                        Button(
-                                            onClick = viewModel::loadNextPage,
-                                        ) {
-                                            Text("Повторить загрузку")
-                                        }
-                                    }
+                                    InlineError(
+                                        message = error,
+                                        onRetry = viewModel::loadNextPage,
+                                        retryLabel = "Повторить загрузку",
+                                        modifier = Modifier.padding(16.dp),
+                                    )
                                 }
                             }
                         }

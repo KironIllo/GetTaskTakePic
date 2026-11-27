@@ -12,6 +12,7 @@ sealed class DomainResult<out T> {
 
 sealed class DomainError {
     data object Network : DomainError()
+    data object Server : DomainError()
     data object Unauthorized : DomainError()
     data object NotFound : DomainError()
     data object Validation : DomainError()

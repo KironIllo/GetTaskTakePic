@@ -1,5 +1,6 @@
 ﻿import {
   bodyJson,
+  cleanTaskPrompt,
   fail,
   getId,
   json,
@@ -135,4 +136,28 @@ Deno.test("17. bodyJson rejects a body larger than 16 KB", async () => {
   });
   const data = await bodyJson(request);
   if (!data.__tooLarge) throw new Error("Oversized body accepted");
+});
+
+Deno.test("18. cleanTaskPrompt trims quotes, markdown and whitespace", () => {
+  const result = cleanTaskPrompt('```\n«  Сфотографируй красный почтовый ящик.  »\n```');
+  if (result !== "Сфотографируй красный почтовый ящик.") {
+    throw new Error(`Unexpected prompt: ${result}`);
+  }
+});
+
+Deno.test("19. cleanTaskPrompt collapses line breaks into one line", () => {
+  const result = cleanTaskPrompt("Найди   синюю\n\nдверь.\nСними её крупно.");
+  if (result !== "Найди синюю дверь. Сними её крупно.") {
+    throw new Error(`Unexpected prompt: ${result}`);
+  }
+});
+
+Deno.test("20. cleanTaskPrompt rejects empty and non-text answers", () => {
+  if (cleanTaskPrompt("  ") !== null) throw new Error("Empty prompt accepted");
+  if (cleanTaskPrompt(null) !== null) throw new Error("Null prompt accepted");
+});
+
+Deno.test("21. cleanTaskPrompt limits the prompt length", () => {
+  const result = cleanTaskPrompt("Сфотографируй " + "очень длинное описание ".repeat(100));
+  if (result === null || result.length > 400) throw new Error("Prompt was not truncated");
 });

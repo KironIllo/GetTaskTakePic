@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kironillo.domain.repository.PhotoRepository
 import com.kironillo.domain.usecase.GetSubmissionHistoryUseCase
+import com.kironillo.presentation.util.toUserMessage
 import com.kironillo.presentation.viewmodel.HistoryUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,7 +60,7 @@ class HistoryViewModel
                 } catch (e: Exception) {
                     _uiState.value =
                         HistoryUiState.Error(
-                            e.message ?: "Не удалось загрузить историю",
+                            e.toUserMessage("Не удалось загрузить историю"),
                         )
                 } finally {
                     isRequestInProgress = false
@@ -120,8 +121,7 @@ class HistoryViewModel
                             latest.copy(
                                 isLoadingMore = false,
                                 loadMoreError =
-                                    e.message
-                                        ?: "Не удалось загрузить следующие записи",
+                                    e.toUserMessage("Не удалось загрузить следующие записи"),
                             )
                     }
                 } finally {

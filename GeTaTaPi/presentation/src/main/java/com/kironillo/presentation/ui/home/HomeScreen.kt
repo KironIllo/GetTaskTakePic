@@ -40,6 +40,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.kironillo.domain.model.Task
 import com.kironillo.domain.model.TaskDifficulty
+import com.kironillo.presentation.ui.components.ErrorState
+import com.kironillo.presentation.ui.components.InlineError
 import com.kironillo.presentation.viewmodel.HomeUiState
 import com.kironillo.presentation.viewmodel.HomeViewModel
 
@@ -55,11 +57,13 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val topics by viewModel.topics.collectAsState()
     val selectedTopic by viewModel.selectedTopicId.collectAsState()
+    val topicsError by viewModel.topicsError.collectAsState()
     val difficulty by viewModel.selectedDifficulty.collectAsState()
     val creating by viewModel.isCreatingTask.collectAsState()
     val createError by viewModel.createTaskError.collectAsState()
     val logoutError by viewModel.logoutError.collectAsState()
     val loggingOut by viewModel.isLoggingOut.collectAsState()
+    val createTaskRetry: () -> Unit = { viewModel.createTask(onTaskSelected) }
 
     val owner = LocalLifecycleOwner.current
     DisposableEffect(owner, viewModel) {
@@ -124,7 +128,13 @@ fun HomeScreen(
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
-                if (topics.isEmpty()) {
+                if (topics.isEmpty() && topicsError != null) {
+                    ErrorState(
+                        message = topicsError.orEmpty(),
+                        onRetry = { viewModel.loadTopics() },
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                } else if (topics.isEmpty()) {
                     Text("Загружаем темы…", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(8.dp))
                 } else {
                     topics.chunked(2).forEach { rowTopics ->
@@ -173,13 +183,27 @@ fun HomeScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 ) {
                     if (creating) {
-                        CircularProgressIndicator(Modifier.size(22.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            CircularProgressIndicator(Modifier.size(22.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                            Text("Придумываем задание…", fontSize = 16.sp)
+                        }
                     } else {
                         Text("Получить задание", fontSize = 16.sp)
                     }
                 }
-                createError?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(bottom = 8.dp)) }
-                logoutError?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(bottom = 8.dp)) }
+                createError?.let { message ->
+                    InlineError(
+                        message = message,
+                        onRetry = if (selectedTopic != null && !creating) createTaskRetry else null,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                }
+                logoutError?.let { message ->
+                    InlineError(message = message, modifier = Modifier.padding(bottom = 8.dp))
+                }
 
                 // Previously available tasks remain accessible below the mockup's primary content.
                 when (val state = uiState) {
@@ -202,7 +226,12 @@ fun HomeScreen(
                         }
                     }
                     HomeUiState.Empty -> Unit
-                    is HomeUiState.Error -> Text(state.message, color = MaterialTheme.colorScheme.error)
+                    is HomeUiState.Error ->
+                        ErrorState(
+                            message = state.message,
+                            onRetry = { viewModel.loadTasks() },
+                            modifier = Modifier.padding(vertical = 8.dp),
+                        )
                 }
             }
         }

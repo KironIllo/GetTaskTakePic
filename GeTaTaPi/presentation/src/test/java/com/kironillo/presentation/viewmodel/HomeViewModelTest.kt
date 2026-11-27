@@ -81,7 +81,7 @@ class HomeViewModelTest {
 
             assertEquals(
                 HomeUiState.Error(
-                    "Не удалось загрузить задания. Попробуйте ещё раз.",
+                    "Нет подключения к интернету. Проверьте сеть и попробуйте снова.",
                 ),
                 viewModel.uiState.value,
             )

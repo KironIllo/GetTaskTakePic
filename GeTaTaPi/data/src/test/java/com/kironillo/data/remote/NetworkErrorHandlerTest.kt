@@ -46,6 +46,18 @@ class NetworkErrorHandlerTest {
     }
 
     @Test
+    fun `maps server error`() {
+        assertEquals(
+            DomainError.Server,
+            handler().mapError(httpException(500)),
+        )
+        assertEquals(
+            DomainError.Server,
+            handler().mapError(httpException(503)),
+        )
+    }
+
+    @Test
     fun `maps no connection error`() {
         assertEquals(
             DomainError.Network,

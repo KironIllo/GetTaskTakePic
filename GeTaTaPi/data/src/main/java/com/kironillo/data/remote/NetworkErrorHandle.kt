@@ -18,6 +18,7 @@ class NetworkErrorHandler(
                 401, 403 -> DomainError.Unauthorized
                 404 -> DomainError.NotFound
                 400, 422 -> DomainError.Validation
+                in 500..599 -> DomainError.Server
                 else -> DomainError.Unknown
             }
 

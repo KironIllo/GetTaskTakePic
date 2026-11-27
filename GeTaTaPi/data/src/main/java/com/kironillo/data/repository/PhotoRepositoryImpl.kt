@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.kironillo.data.local.datastore.AuthSessionDataStore
 import com.kironillo.data.mapper.toDomain
+import com.kironillo.data.remote.NetworkErrorHandler
 import com.kironillo.data.remote.StorageApi
 import com.kironillo.data.remote.SubmissionApi
 import com.kironillo.data.remote.dto.CreateSubmissionRequestDto
@@ -11,9 +12,13 @@ import com.kironillo.domain.model.Answer
 import com.kironillo.domain.model.SubmissionHistoryPage
 import com.kironillo.domain.model.SubmissionResult
 import com.kironillo.domain.repository.PhotoRepository
+import com.kironillo.domain.result.DomainException
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -24,10 +29,21 @@ class PhotoRepositoryImpl @Inject constructor(
     private val authSessionDataStore: AuthSessionDataStore,
     private val storageApi: StorageApi,
     private val submissionApi: SubmissionApi,
+    private val errorHandler: NetworkErrorHandler,
     @param:Named("supabaseUrl") private val supabaseUrl: String,
 ) : PhotoRepository {
 
     override suspend fun submitPhoto(
+        taskId: String,
+        photoPath: String,
+        idempotencyKey: String,
+        latitude: Double?,
+        longitude: Double?,
+    ): String = mapNetworkErrors {
+        submitPhotoInternal(taskId, photoPath, idempotencyKey, latitude, longitude)
+    }
+
+    private suspend fun submitPhotoInternal(
         taskId: String,
         photoPath: String,
         idempotencyKey: String,
@@ -78,10 +94,7 @@ class PhotoRepositoryImpl @Inject constructor(
         )
 
         if (!uploadResponse.isSuccessful) {
-            val error = uploadResponse.errorBody()?.string()
-            throw IllegalStateException(
-                "Не удалось загрузить фотографию: ${error ?: uploadResponse.code()}",
-            )
+            throw HttpException(uploadResponse)
         }
 
         val submission = submissionApi.createSubmission(
@@ -99,20 +112,18 @@ class PhotoRepositoryImpl @Inject constructor(
 
     override suspend fun getSubmissionStatus(
         submissionId: String,
-    ): SubmissionResult {
-        val response = submissionApi.getSubmission(submissionId)
-
-        return response.toDomain()
+    ): SubmissionResult = mapNetworkErrors {
+        submissionApi.getSubmission(submissionId).toDomain()
     }
 
-    override suspend fun getPhotoUrl(storagePath: String): String {
+    override suspend fun getPhotoUrl(storagePath: String): String = mapNetworkErrors {
         val response = storageApi.createSignedUrl(
             path = storagePath,
         )
 
         val signedPath = response.signedURL
 
-        return if (signedPath.startsWith("http")) {
+        if (signedPath.startsWith("http")) {
             signedPath
         } else {
             supabaseUrl.trimEnd('/') +
@@ -124,13 +135,13 @@ class PhotoRepositoryImpl @Inject constructor(
     override suspend fun getSubmissionHistory(
         limit: Int,
         cursor: String?,
-    ): SubmissionHistoryPage {
+    ): SubmissionHistoryPage = mapNetworkErrors {
         val response = submissionApi.getSubmissions(
             limit = limit,
             cursor = cursor,
         )
 
-        return SubmissionHistoryPage(
+        SubmissionHistoryPage(
             items = response.data.map { it.toDomain() },
             nextCursor = response.page.nextCursor,
         )
@@ -154,6 +165,19 @@ class PhotoRepositoryImpl @Inject constructor(
             "Для отправки фотографии используйте submitPhoto",
         )
     }
+
+    private suspend fun <T> mapNetworkErrors(block: suspend () -> T): T =
+        try {
+            block()
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: DomainException) {
+            throw exception
+        } catch (exception: HttpException) {
+            throw DomainException(errorHandler.mapError(exception))
+        } catch (exception: IOException) {
+            throw DomainException(errorHandler.mapError(exception))
+        }
 
     private companion object {
         const val MAX_PHOTO_SIZE = 10 * 1024 * 1024

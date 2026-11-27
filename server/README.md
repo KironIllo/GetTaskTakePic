@@ -59,12 +59,14 @@ Authorization: Bearer <access_token>
 |---|---|---|
 | GET | `/topics` | Список активных тем |
 | GET | `/tasks` | Список своих заданий |
-| POST | `/tasks` | Создать задание |
+| POST | `/tasks` | Создать задание (текст задания генерирует ИИ) |
 | GET | `/tasks/{taskId}` | Получить своё задание |
 | POST | `/submissions` | Создать отправку для проверки |
 | GET | `/submissions` | История отправок |
 | GET | `/submissions/{submissionId}` | Получить отправку и результат |
 | GET | `/statistics` | Статистика пользователя |
+
+Endpoint `POST /tasks` принимает JSON `{ "topicId": "...", "difficulty": "easy" }`. Текст задания генерирует OpenRouter (`OPENROUTER_API_KEY`, опционально `OPENROUTER_TEXT_MODEL`); если модель недоступна, используется шаблонный текст, чтобы создание задания не падало.
 
 Endpoint `POST /submissions` принимает JSON `{ "taskId": "...", "storagePath": "..." }` и обязательный заголовок `Idempotency-Key`. Фотография предварительно загружается в приватный Storage bucket `submissions`. Endpoint возвращает `202` и статус `queued`.
 

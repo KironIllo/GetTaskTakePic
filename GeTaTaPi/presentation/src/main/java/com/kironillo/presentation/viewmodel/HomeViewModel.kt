@@ -10,6 +10,7 @@ import com.kironillo.domain.usecase.auth.LogoutUseCase
 import com.kironillo.domain.usecase.task.CreateTaskUseCase
 import com.kironillo.domain.usecase.task.GetTasksUseCase
 import com.kironillo.domain.usecase.task.GetTopicsUseCase
+import com.kironillo.presentation.util.toUserMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +34,8 @@ class HomeViewModel
         val topics: StateFlow<List<Topic>> = _topics.asStateFlow()
         private val _selectedTopicId = MutableStateFlow<String?>(null)
         val selectedTopicId: StateFlow<String?> = _selectedTopicId.asStateFlow()
+        private val _topicsError = MutableStateFlow<String?>(null)
+        val topicsError: StateFlow<String?> = _topicsError.asStateFlow()
         private val _selectedDifficulty = MutableStateFlow(TaskDifficulty.EASY)
         val selectedDifficulty: StateFlow<TaskDifficulty> = _selectedDifficulty.asStateFlow()
         private val _isCreatingTask = MutableStateFlow(false)
@@ -49,14 +52,15 @@ class HomeViewModel
             loadTasks()
         }
 
-        private fun loadTopics() =
+        fun loadTopics() =
             viewModelScope.launch {
+                _topicsError.value = null
                 when (val result = getTopicsUseCase()) {
                     is DomainResult.Success -> {
                         _topics.value = result.data
                         if (_selectedTopicId.value == null) _selectedTopicId.value = result.data.firstOrNull()?.id
                     }
-                    is DomainResult.Error -> _createTaskError.value = "Не удалось загрузить темы. Проверьте подключение к интернету."
+                    is DomainResult.Error -> _topicsError.value = result.error.toUserMessage()
                 }
             }
 
@@ -86,7 +90,7 @@ class HomeViewModel
                         loadTasks()
                     }
                     is DomainResult.Error -> {
-                        _createTaskError.value = "Не удалось создать задание. Попробуйте ещё раз."
+                        _createTaskError.value = result.error.toUserMessage()
                         _isCreatingTask.value = false
                     }
                 }
@@ -113,7 +117,7 @@ class HomeViewModel
                         if (showLoading ||
                             (_uiState.value !is HomeUiState.Content && _uiState.value != HomeUiState.Empty)
                         ) {
-                            _uiState.value = HomeUiState.Error("Не удалось загрузить задания. Попробуйте ещё раз.")
+                            _uiState.value = HomeUiState.Error(result.error.toUserMessage())
                         }
                 }
             }

@@ -66,3 +66,20 @@ export function validUuid(value: unknown): value is string {
   return typeof value === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
+
+/**
+ * Cleans a model answer so only a short single-line task description remains.
+ * Returns null when the model produced no usable text.
+ */
+export function cleanTaskPrompt(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+
+  const cleaned = value
+    .replace(/```[a-z]*/gi, "")
+    .replace(/^["'«»\s]+|["'«»\s]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (cleaned.length < 10) return null;
+  return cleaned.slice(0, 400);
+}

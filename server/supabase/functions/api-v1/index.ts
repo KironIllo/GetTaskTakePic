@@ -9,7 +9,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
 };
 
-import { bodyJson, fail, getId, json, validStoragePath, validUuid } from "./utils.ts";
+import { bodyJson, cleanTaskPrompt, fail, getId, json, validStoragePath, validUuid } from "./utils.ts";
 
 // Convert the private Storage image into a data URL for the OpenRouter vision request.
 function bytesToBase64(bytes: Uint8Array): string {
@@ -48,6 +48,94 @@ function parseModelJson(content: unknown): { passed: boolean; feedback: string; 
     feedback: parsed.feedback.trim().slice(0, 2000),
     confidence: Math.max(0, Math.min(1, confidence)),
   };
+}
+
+const TASK_TEXT_MODEL_DEFAULT = "meta-llama/llama-3.1-8b-instruct:free";
+
+const DIFFICULTY_GUIDE: Record<string, string> = {
+  easy: "Подойдёт простой, хорошо заметный объект, который легко найти рядом с домом или на улице.",
+  medium: "Подойдёт необычный объект, деталь или ракурс, который требует внимания к окружению.",
+  hard: "Подойдёт сцена из нескольких элементов, где важны композиция, свет и детали.",
+};
+
+// Generates a concrete photo task with the same OpenRouter account used for photo checks.
+// Returns null on any failure so task creation can fall back to a static prompt.
+async function generateTaskPrompt(
+  topicTitle: string,
+  difficulty: string,
+  openRouterKey: string,
+): Promise<string | null> {
+  const model = Deno.env.get("OPENROUTER_TEXT_MODEL") ?? TASK_TEXT_MODEL_DEFAULT;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20_000);
+
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Authorization": `Bearer ${openRouterKey}`,
+        "Content-Type": "application/json",
+        "X-Title": "GeTaTaPi",
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.9,
+        max_tokens: 160,
+        messages: [{
+          role: "user",
+          content: [
+            "Ты придумываешь задания для фотоквеста.",
+            `Тема: «${topicTitle}». Сложность: ${difficulty}.`,
+            DIFFICULTY_GUIDE[difficulty] ?? DIFFICULTY_GUIDE.easy,
+            "Придумай одно конкретное задание: назови конкретный объект, деталь или сцену, которую нужно сфотографировать.",
+            "Не используй общие фразы вроде «интересный объект» и не повторяй формулировку темы.",
+            "Задание должно быть выполнимо с обычным телефоном без специального реквизита.",
+            "Ответь 1–2 предложениями на русском языке, без списков, кавычек, Markdown и пояснений.",
+            "Верни только текст задания.",
+          ].join("\n"),
+        }],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(JSON.stringify({
+        event: "task_generation_failed",
+        status: response.status,
+        body: (await response.text()).slice(0, 500),
+      }));
+      return null;
+    }
+
+    const payload = await response.json();
+    const raw = payload?.choices?.[0]?.message?.content;
+    const content = typeof raw === "string"
+      ? raw
+      : Array.isArray(raw)
+        ? raw
+          .filter((item: any) => item?.type === "text" && typeof item.text === "string")
+          .map((item: any) => item.text)
+          .join("\n")
+        : "";
+
+    const prompt = cleanTaskPrompt(content);
+    if (!prompt) {
+      console.error(JSON.stringify({
+        event: "task_generation_empty",
+        model: payload?.model,
+        finishReason: payload?.choices?.[0]?.finish_reason,
+      }));
+    }
+    return prompt;
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: "task_generation_error",
+      message: error instanceof Error ? error.message : "Unknown task generation error",
+    }));
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 // Runs outside the HTTP request. Service-role access is restricted to this server-side worker;
@@ -295,15 +383,22 @@ Deno.serve(async (req: Request) => {
       if (topicError) throw topicError;
       if (!topic) return fail(404, "NOT_FOUND", "Active topic not found.");
 
-      const prompts: Record<string, string> = {
-        easy: `Сфотографируй любой интересный объект по теме «${topic.title}».`,
-        medium: `Найди необычный объект по теме «${topic.title}» и сделай выразительную фотографию.`,
-        hard: `Сделай оригинальную фотографию по теме «${topic.title}», уделив внимание композиции и деталям.`,
+      const fallbackPrompts: Record<string, string> = {
+        easy: `Сфотографируй заметный объект по теме «${topic.title}» рядом с домом или на улице.`,
+        medium: `Найди необычную деталь по теме «${topic.title}» и сними её с выразительного ракурса.`,
+        hard: `Собери в кадр сцену из нескольких объектов по теме «${topic.title}», продумав композицию и свет.`,
       };
+
+      // Make the task concrete: ask the text model for an object/scene, not just the topic name.
+      const openRouterKey = Deno.env.get("OPENROUTER_API_KEY");
+      const generatedPrompt = openRouterKey
+        ? await generateTaskPrompt(topic.title, body.difficulty, openRouterKey)
+        : null;
+      const prompt = generatedPrompt ?? fallbackPrompts[body.difficulty];
 
       const { data, error } = await supabase.from("tasks").insert({
         user_id: user.id, topic_id: topic.id, difficulty: body.difficulty,
-        prompt: prompts[body.difficulty], status: "active",
+        prompt, status: "active",
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       }).select("id,topic_id,difficulty,prompt,status,created_at,expires_at").single();
       if (error) throw error;
